@@ -1,5 +1,5 @@
 import {push} from "svelte-spa-router";
-import { refresh_token, access_token } from './stores/session'
+import { refresh_token, access_token } from '../store/session'
 import { get } from 'svelte/store';
 import {urlBase} from "./api";
 
