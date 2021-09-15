@@ -1,0 +1,47 @@
+<script>
+	import Table from '../../components/Table.svelte';
+	import Modal from '../../components/Modal.svelte';
+	import { onMount } from 'svelte';
+	let head = [];
+	let body = [];
+	head = ['id', 'nombre', 'apellido'];
+	body = ['9', 'kenneth', 'olivas'];
+
+    let res
+	onMount(async() => {
+        fetch('http://localhost:1337/users-permissions/roles', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+    });
+</script>
+
+<h1 class="text-center text-2xl font-bold text-gray-700">Roles</h1>
+
+<Modal tilte="Agregar rol" btnName="Agregar rol">
+	<label for="username" class="label">
+		<span class="label-text">Nombre del </span>
+	</label>
+	<input
+		type="text"
+		ud="username"
+		placeholder="Nombre usuario"
+		class="input input-primary input-bordered focus:placeholder-primary"
+	/>
+	<div class="modal-action">
+		<button class="btn btn-primary w-1/2" type="button"
+			><label for="my-modal-2" class="">Agregar</label></button
+		>
+		<label for="my-modal-2" class="btn w-1/2">Cancelar</label>
+	</div>
+</Modal>
+
+<Table {head} {body}>
+	<button class="btn  btn-ghost btn-circle btn-sm mx-1 "><i class="fas fa-pen" /></button>
+
+	<button class="btn  btn-ghost btn-circle btn-sm mx-1"><i class="fas fa-trash-alt" /></button>
+</Table>
