@@ -5,9 +5,9 @@
 	let body = [];
 	head = ['id', 'nombre', 'apellido'];
 	body = ['9', 'kenneth', 'olivas'];
+	let modalController
 
-
-    
+  
     
 
 </script>
@@ -16,7 +16,7 @@
 
 <Modal tilte="Agregar usuario" btnName="Agregar usuario">
 	<label for="username" class="label">
-		<span class="label-text">Nombre de usuario </span>
+		<span  class="label-text">Nombre de usuario </span>
 	</label>
 	<input
 		type="text"

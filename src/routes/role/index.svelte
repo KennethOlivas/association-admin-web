@@ -7,20 +7,20 @@
 	head = ['id', 'nombre', 'apellido'];
 	body = ['9', 'kenneth', 'olivas'];
 
-    let res
-	onMount(async() => {
-        fetch('http://localhost:1337/users-permissions/roles', {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-    });
+	let res;
+	onMount(async () => {
+		fetch('http://localhost:1337/users-permissions/roles', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+			.then((response) => response.json())
+			.then((data) => console.log(data));
+	});
 </script>
 
-<h1 class="text-center text-2xl font-bold text-gray-700">Roles</h1>
+<h1 class="text-center text-2xl font-bold text-gray-50">Roles</h1>
 
 <Modal tilte="Agregar rol" btnName="Agregar rol">
 	<label for="username" class="label">

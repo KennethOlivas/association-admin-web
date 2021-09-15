@@ -1,6 +1,22 @@
 <script>
+	import { onMount } from 'svelte';
+
 	import '../styles/tailwind-output.css';
 
+	onMount(() => {
+		let route = window.location.pathname;
+		console.log(route);
+
+		switch (route) {
+			case '/role':
+			case '/empleados':
+			case '/user':
+				current = 2;
+				break;
+			default:
+				current = 1;
+		}
+	});
 	let menu = [
 		{
 			id: 1,
@@ -30,15 +46,15 @@
 		}
 	];
 
-	let current = 1;
+	let current = 0;
 </script>
 
 <main class="h-screen overflow-hidden relative ">
 	<div class="flex items-start justify-between">
-		<div class="h-screen hidden md:block shadow-lg relative w-80 ">
+		<div class="h-screen hidden md:block shadow-lg relative w-80 bg-neutral">
 			<div class=" h-full ">
 				<div class="flex items-center justify-start pt-6 ml-8">
-					<p class="font-bold dark:text-white text-xl">Plannifer</p>
+					<p class="font-bold  text-xl">Plannifer</p>
 				</div>
 				<nav class="mt-6">
 					<div>
@@ -47,7 +63,7 @@
 								class="my-2 mx-1 hover:bg-primary-focus rounded-box hover:text-white  cursor-pointer  {menuItems.id ===
 								current
 									? 'bg-primary text-white'
-									: 'text-gray-800'}  dark:text-white flex items-center transition-colors duration-200 "
+									: ''}   flex items-center transition-colors duration-200 "
 							>
 								{#if menuItems.submenu}
 									<div class="dropdown dropdown-right w-full">
