@@ -1,8 +1,31 @@
+<svelte:options accessors />
+
 <script>
+	import { createEventDispatcher } from 'svelte';
+	import { onMount } from 'svelte';
+
+	const dispatch = createEventDispatcher();
+
+	onMount(() => {
+		dispatch('message');
+	});
 	export let head = [];
 	export let body = [];
-	head = ['id', 'nombre', 'apellido'];
-	body = ['9', 'kenneth', 'olivas'];
+
+	export const addDataBody = (e) => {
+		body = e;
+	};
+
+	export const reload = (data) => {
+		body = data;
+	};
+
+	const deleteItem = (id) => {
+		dispatch("deleteItem",{
+			id: id
+		})
+	
+	}
 
 </script>
 
@@ -17,12 +40,27 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
-				{#each body as bodyTable}
-					<th class="capitalize">{bodyTable}</th>
-				{/each}
-				<th><slot /></th>
-			</tr>
+			{#each body as bodyTable}
+				<tr class="group">
+					{#each bodyTable as data}
+						<th
+							class="group-hover:bg-primary opacity-100 group-hover:bg-opacity-60 transition duration-200 capitalize cursor-pointer"
+							>{data}
+						</th>
+					{/each}
+					<th
+						class="group-hover:bg-primary opacity-100 group-hover:bg-opacity-60 transition duration-200 cursor-pointer"
+					>
+						<button class="btn  btn-ghost btn-circle btn-sm mx-1 "
+							><i class="fas fa-pen" />
+						</button>
+
+						<button class="btn  btn-ghost btn-circle btn-sm mx-1" on:click={deleteItem(bodyTable[0])}
+							><i class="fas fa-trash-alt" /></button
+						></th
+					>
+				</tr>
+			{/each}
 		</tbody>
 	</table>
 </div>

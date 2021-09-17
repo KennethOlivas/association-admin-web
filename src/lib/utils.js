@@ -1,7 +1,8 @@
-import {push} from "svelte-spa-router";
+
 import { refresh_token, access_token } from '../store/session'
 import { get } from 'svelte/store';
 import {urlBase} from "./api";
+import { goto } from "$app/navigation";
 
 
 export function conditionsFailed(event) {
@@ -9,7 +10,7 @@ export function conditionsFailed(event) {
 
   // Perform any action, for example replacing the current route
   if (event.detail.route === "/") {
-    push("/login");
+    goto("/login")
   }
 }
 
@@ -42,7 +43,7 @@ export const newAccessToken = async () => {
     
     access_token.reset(json.access_token)
   } catch (error) {
-    replace('/')
+    goto('/')
     localStorage.clear()
   }
   
@@ -56,7 +57,7 @@ export const handleResponse = (response) => {
       } else {
         let error = Object.assign({}, json, {
           status: response.status,
-          statusText: response.statusText
+          statusText: response.statusText,
         })
         return Promise.reject(error)
       }

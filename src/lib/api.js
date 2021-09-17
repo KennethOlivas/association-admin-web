@@ -3,7 +3,7 @@ import {access_token} from '../store/session'
 import {newAccessToken} from "./utils";
 
 
-export const urlBase = "http://localhost:3333";
+export const urlBase = "http://localhost:1337";
 
 export const get = (url) => {
     const urlComplete = urlBase + url;

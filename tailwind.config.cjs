@@ -13,7 +13,7 @@ module.exports = {
 
   daisyui: {
     themes: [
-      'forest', // first one will be the default theme
+      'corporate', // first one will be the default theme
     ],
   },
 }

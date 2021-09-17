@@ -1,26 +1,35 @@
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';
+	import * as api from "../../lib/api"
 	import { onMount } from 'svelte';
-	let head = [];
-	let body = [];
-	head = ['id', 'nombre', 'apellido'];
-	body = ['9', 'kenneth', 'olivas'];
+	let roles = [];
+	let loading = false;
+	let head = ['id', 'nombre', ];
 
-	let res;
+	let modalController;
+	let tableControler;
+
 	onMount(async () => {
-		fetch('http://localhost:1337/users-permissions/roles', {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-			.then((response) => response.json())
-			.then((data) => console.log(data));
+		try {
+			let res = await api.get('/users-permissions/roles').then((response) => response.json());
+			
+			roles = [...res]
+			tableControler.body = roles;
+		} catch (error) {
+			console.log(error);
+		}
+		loading = true;
 	});
+
+	
+
+	const test = () => {
+		console.log(tableControler.body);
+	};
 </script>
 
-<h1 class="text-center text-2xl font-bold text-gray-50">Roles</h1>
+<h1 on:click={test} class="text-center text-2xl font-bold text-gray-50">Roles</h1>
 
 <Modal tilte="Agregar rol" btnName="Agregar rol">
 	<label for="username" class="label">
@@ -40,7 +49,7 @@
 	</div>
 </Modal>
 
-<Table {head} {body}>
+<Table {head}on:message={(tableControler.body = [...roles])}>
 	<button class="btn  btn-ghost btn-circle btn-sm mx-1 "><i class="fas fa-pen" /></button>
 
 	<button class="btn  btn-ghost btn-circle btn-sm mx-1"><i class="fas fa-trash-alt" /></button>
