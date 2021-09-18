@@ -3,8 +3,8 @@
 	import Modal from '../../components/Modal.svelte';
 	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
-	import Loader from '../../components/loader.svelte';
-	import { prevent_default } from 'svelte/internal';
+	import Loader from '../../components/Loader.svelte';
+
 
 	let users = [];
 	let loading = false;
@@ -13,35 +13,44 @@
 	let modalController;
 	let tableControler;
 
-	let roles;
+	let roles = [];
 
 	//datos del usuario
 	let username;
 	let email;
 	let password;
+	let role;
+	let addOedit = true;
 
 	onMount(async () => {
 		try {
-			let res = await api.get('/users').then((response) => response.json());
-			users = [...res];
+			await getUsers();
 		} catch (error) {
 			console.log(error);
 		}
-		loading = true;
+		loading = true
 	});
 
+	const getUsers = async () => {
+		let res = await api.get('/users').then((response) => response.json());
+		users = [];
+		users = [...res];
+	};
+
 	const loaData = () => {
-		body = []
+		body = [];
 		for (const data of users) {
 			body.push([data.id, data.username, data.role.name]);
 		}
-		console.log("entre");
+		console.log('entre');
 		tableControler.addDataBody(body);
 	};
 
-	const test = async () => {
+	const getRoles = async () => {
 		try {
-			roles = await api.get('/users-permissions/roles').then((response) => response.json());
+			let res = await api.get('/users-permissions/roles').then((response) => response.json());
+			roles = res.roles;
+			console.log(roles);
 		} catch (error) {
 			console.log(error);
 		}
@@ -52,30 +61,57 @@
 		let data = {
 			username: username,
 			email: email,
-			password: password
+			password: password,
+			role: role
 		};
 
 		try {
 			await api.post('/users', data);
-			let res = await api.get('/users').then((response) => response.json());
-			users = []
-			users = [...res];
-	
+			await getUsers();
 		} catch (error) {}
 		modalController.closeModal();
 		loading = true;
 	};
 
-
 	const deleteUser = async (event) => {
-		console.log(event.detail);
-		let id = event.detail.id
-		console.log(id);
-		await api.DELETE("/users",id)
+		loading = false;
 
+		let id = event.detail.id;
 
-	}
+		try {
+			await api.DELETE(`/users/${id}`);
+			await getUsers();
+		} catch (error) {
+			console.log(error);
+		}
 
+		loading = true;
+	};
+
+	const setEditUser = async (event) => {
+		await getRoles();
+
+		let id = event.detail.id;
+		let data = users.find((e) => e.id === id);
+		username = data.username;
+		email = data.email;
+		role = data.role.id;
+		modalController.openModal();
+	};
+
+	const clearData = () => {
+		username = '';
+		password = '';
+		email = '';
+		role = '';
+	};
+
+	const submit = async () => {
+		if (addOedit) {
+			await post();
+		} else {
+		}
+	};
 </script>
 
 <h1 on:click={loaData} class="text-center text-2xl font-bold ">Usuarios</h1>
@@ -83,12 +119,12 @@
 <div class="flex items-center justify-end">
 	<Modal
 		bind:this={modalController}
-		on:onClick={test}
+		on:onClick={getRoles}
 		tilte="Agregar usuario"
 		btnName="Agregar"
 		icon="fas fa-user-plus"
 	>
-		<form class="form-control" on:submit|preventDefault={post}>
+		<form class="form-control" on:submit|preventDefault={submit}>
 			<label for="username" class="label mt-2">
 				<span class="label-text">Nombre de usuario </span>
 			</label>
@@ -125,6 +161,16 @@
 				class="input input-info input-bordered focus:placeholder-info w-full"
 			/>
 
+			<label for="password" class="label mt-2">
+				<span class="label-text">Roles</span>
+			</label>
+			<select bind:value={role} class="select select-bordered select-info w-full" required>
+				<option disabled="disabled" selected="selected">Elija...</option>
+				{#each roles as rol}
+					<option value={rol.id}>{rol.name}</option>
+				{/each}
+			</select>
+
 			<div class="modal-action">
 				<button class="btn btn-info w-1/2" type="submit">Agregar</button>
 				<label for="my-modal-2" class="btn btn-error text-white w-1/2">Cancelar</label>
@@ -134,9 +180,13 @@
 </div>
 
 {#if loading}
-	<Table bind:this={tableControler} {head} on:message={loaData} on:deleteItem={deleteUser}>
-
-	</Table>
+	<Table
+		bind:this={tableControler}
+		{head}
+		on:message={loaData}
+		on:deleteItem={deleteUser}
+		on:editItem={setEditUser}
+	/>
 {:else}
 	<Loader />
 {/if}

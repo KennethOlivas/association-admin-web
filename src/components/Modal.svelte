@@ -4,7 +4,7 @@
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 	export let tilte;
-	export let btnName;
+	export let btnName ;
     export let icon
 	let modal = false;
 
@@ -22,7 +22,7 @@
 
 </script>
 
-<label for="my-modal-2" on:click={clicked} class="btn btn-info hover:bg-blue-600 my-4 mx-4 modal-button"
+<label for="my-modal-2" on:click={clicked} class="{btnName ? "" : "hidden" } btn btn-info hover:bg-blue-600 my-4 mx-4 modal-button"
 	><i class="{icon} mr-2 text-lg"></i>{btnName}</label
 >
 <input type="checkbox" bind:checked={modal} id="my-modal-2" class="modal-toggle" />

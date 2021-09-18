@@ -8,22 +8,32 @@
 	let username;
 	let password;
 	let modal;
+	let title;
+	let bodyModal;
 
 	const login = async () => {
 		let headers = {};
 		const body = JSON.stringify({ identifier: username, password });
 		headers['Content-Type'] = 'application/json';
-		await fetch(`${urlBase}/auth/local`, {
-			method: 'POST',
-			body,
-			headers
-		})
-			.then(handleResponse)
-			.then((data) => {
-				access_token.reset(data.jwt);
-				user.reset(data.user);
-				goto('/');
-			});
+
+		try {
+			await fetch(`${urlBase}/auth/local`, {
+				method: 'POST',
+				body,
+				headers
+			})
+				.then(handleResponse)
+				.then((data) => {
+					access_token.reset(data.jwt);
+					user.reset(data.user);
+					goto('/');
+				});
+		} catch (error) {
+			console.log(error.message[0].messages[0].message);
+			title = "Error al iniciar sesion"
+			bodyModal = error.message[0].messages[0].message
+			modal.openModal()
+		};
 	};
 
 	const handleKeyPress = (e) => {
@@ -50,7 +60,7 @@
 							bind:value={username}
 							type="text"
 							placeholder="Nombre de usuario"
-							class="mt-1 block w-full input"
+							class="mt-1 block w-full input input-primary"
 						/>
 					</div>
 
@@ -59,7 +69,7 @@
 							bind:value={password}
 							type="password"
 							placeholder="Contraseña"
-							class="mt-1 block w-full input"
+							class="mt-1 block w-full input input-primary"
 						/>
 					</div>
 
@@ -84,4 +94,10 @@
 	</div>
 </div>
 
-<Modal bind:this={modal} />
+<Modal bind:this={modal} tilte={title} >
+	<p class="text-center mt-2">{bodyModal}</p>
+	<div class="modal-action">
+		<label for="my-modal-2" class="btn btn-error text-white w-full">Aceptar</label>
+	</div>
+
+</Modal>
