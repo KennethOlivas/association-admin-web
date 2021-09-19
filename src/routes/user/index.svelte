@@ -13,6 +13,7 @@
 	let modalController;
 	let tableControler;
 
+
 	let roles = [];
 
 	//datos del usuario
@@ -21,6 +22,9 @@
 	let password;
 	let role;
 	let addOedit = true;
+	$: btnSubmit = addOedit ? "agregar" : "editar"
+	let id 
+	
 
 	onMount(async () => {
 		try {
@@ -42,7 +46,7 @@
 		for (const data of users) {
 			body.push([data.id, data.username, data.role.name]);
 		}
-		console.log('entre');
+		
 		tableControler.addDataBody(body);
 	};
 
@@ -73,6 +77,29 @@
 		loading = true;
 	};
 
+
+	const edit = async () => {
+		loading = false;
+		let data = {
+			username: username,
+			email: email,
+			password: password,
+			role: role
+		};
+		console.log(id);
+		(async () => {
+		try {
+			await api.put(`/users/${id}`, data);
+			await getUsers();
+			loaData()
+		} catch (error) {}
+		modalController.closeModal();
+		})()
+		loading = true;
+
+	
+	};
+
 	const deleteUser = async (event) => {
 		loading = false;
 
@@ -89,9 +116,10 @@
 	};
 
 	const setEditUser = async (event) => {
+		addOedit = false
 		await getRoles();
 
-		let id = event.detail.id;
+		id = event.detail.id;
 		let data = users.find((e) => e.id === id);
 		username = data.username;
 		email = data.email;
@@ -103,14 +131,19 @@
 		username = '';
 		password = '';
 		email = '';
-		role = '';
+		role = 'Elija...';
+		id = ""
 	};
 
 	const submit = async () => {
 		if (addOedit) {
 			await post();
 		} else {
+			await edit();
+			
 		}
+
+		clearData()
 	};
 </script>
 
@@ -152,6 +185,7 @@
 			<label for="password" class="label mt-2">
 				<span class="label-text">Contraseña </span>
 			</label>
+			{#if addOedit}
 			<input
 				bind:value={password}
 				required
@@ -160,6 +194,16 @@
 				placeholder="Contranea"
 				class="input input-info input-bordered focus:placeholder-info w-full"
 			/>
+			{:else}
+			<input
+				bind:value={password}
+				
+				type="password"
+				ud="password"
+				placeholder="Contranea"
+				class="input input-info input-bordered focus:placeholder-info w-full"
+			/>
+			{/if}
 
 			<label for="password" class="label mt-2">
 				<span class="label-text">Roles</span>
@@ -172,8 +216,8 @@
 			</select>
 
 			<div class="modal-action">
-				<button class="btn btn-info w-1/2" type="submit">Agregar</button>
-				<label for="my-modal-2" class="btn btn-error text-white w-1/2">Cancelar</label>
+				<button class="btn btn-info w-1/2" type="submit">{btnSubmit}</button>
+				<label for="my-modal-2" type="button" class="btn btn-error text-white w-1/2" on:click={clearData}>Cancelar</label>
 			</div>
 		</form>
 	</Modal>

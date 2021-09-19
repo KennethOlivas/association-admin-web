@@ -68,7 +68,7 @@
 			<div class="h-screen hidden md:block  relative w-80 bg-base-content">
 				<div class=" h-full ">
 					<div class="flex items-center justify-start pt-6 ml-8">
-						<p class="font-bold text-white  text-xl">Plannifer</p>
+						<p class="font-bold text-white  text-xl">Young Ocean</p>
 					</div>
 					<nav class="mt-6">
 						<div>
@@ -151,20 +151,19 @@
 									{#if menuItems.submenu}
 									<li> 
 										
-										<div tabindex="0" class="collapse w-full"> 
-											<!-- svelte-ignore a11y-missing-attribute -->
-											<a class="collapse-title pl-2 ">
+										<div class="collapse w-96 collapse-arrow">
+											<input type="checkbox"/> 
+											<p class="collapse-title mt-2">
 												<span class="text-left mr-1">
 													<i class={menuItems.icon} />
 												</span>
 											 {menuItems.name}
-											</a> 
+											</p> 
 											<div class="collapse-content"> 
 												{#each menuItems.submenu as submenu}
 												<li>
-													<a href={submenu.route}
-														>{submenu.name}</a
-													>
+													<a href={submenu.route} class="w-full pl-6 p-2 my-2"  
+														>{submenu.name}</a>
 												</li>
 											{/each}
 											</div>
@@ -188,6 +187,7 @@
 									{/if}
 								{/each}
 							</ul>
+							
 						</div>
 					</div>
 					<div class="relative z-20 flex flex-col justify-end h-full px-3 md:w-full">
@@ -216,5 +216,6 @@
 				<slot />
 			</div>
 		</div>
+		
 	</main>
 {/if}

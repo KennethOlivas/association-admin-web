@@ -49,7 +49,7 @@
 		</thead>
 		<tbody>
 			{#each body as bodyTable}
-				<tr class="group">
+				<tr class="group" >
 					{#each bodyTable as data}
 						<th
 							class="group-hover:bg-primary opacity-100 group-hover:bg-opacity-60 transition duration-200 capitalize cursor-pointer"
