@@ -61,7 +61,7 @@
 	};
 
 	const post = async () => {
-		loading = false;
+		
 		let data = {
 			username: username,
 			email: email,
@@ -71,32 +71,31 @@
 
 		try {
 			await api.post('/users', data);
-			await getUsers();
+			
 		} catch (error) {}
 		modalController.closeModal();
-		loading = true;
+	
 	};
 
 
 	const edit = async () => {
-		loading = false;
+		
 		let data = {
 			username: username,
 			email: email,
 			password: password,
 			role: role
 		};
-		console.log(id);
+	
 		(async () => {
 		try {
 			await api.put(`/users/${id}`, data);
-			await getUsers();
-			loaData()
+			
+			
 		} catch (error) {}
 		modalController.closeModal();
 		})()
-		loading = true;
-
+		
 	
 	};
 
@@ -136,14 +135,15 @@
 	};
 
 	const submit = async () => {
+		loading = false;
 		if (addOedit) {
 			await post();
 		} else {
 			await edit();
-			
 		}
-
+		await getUsers();
 		clearData()
+		loading = true;
 	};
 </script>
 
