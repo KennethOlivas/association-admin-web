@@ -3,7 +3,7 @@ import {access_token} from '../store/session'
 import {newAccessToken} from "./utils";
 
 
-export const urlBase = "http://192.168.107.200:1337";
+export const urlBase = "https://young-ocean-73880.herokuapp.com";
 
 export const get = (url) => {
     const urlComplete = urlBase + url;
