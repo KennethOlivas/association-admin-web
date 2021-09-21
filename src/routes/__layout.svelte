@@ -202,7 +202,7 @@
 									class="p-2 shadow menu dropdown-content bg-base-200 rounded-box w-52 mt-14"
 								>
 									<li>
-										<a href="http://localhost:1337/admin" target="_blanck"
+										<a href="https://young-ocean-73880.herokuapp.com/admin" target="_blanck"
 											><i class="fas fa-cubes mr-4" />Dashboard API</a
 										>
 										<!-- svelte-ignore a11y-missing-attribute -->

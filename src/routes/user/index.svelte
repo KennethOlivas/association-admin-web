@@ -5,14 +5,12 @@
 	import { onMount } from 'svelte';
 	import Loader from '../../components/Loader.svelte';
 
-
 	let users = [];
 	let loading = false;
 	let head = ['id', 'nombre', 'role'];
 	let body = [];
 	let modalController;
 	let tableControler;
-
 
 	let roles = [];
 
@@ -21,11 +19,10 @@
 	let email;
 	let password;
 	let role;
-	
+
 	let addOedit = true;
-	$: btnSubmit = addOedit ? "agregar" : "editar"
-	let id 
-	
+	$: btnSubmit = addOedit ? 'agregar' : 'editar';
+	let id;
 
 	onMount(async () => {
 		try {
@@ -33,7 +30,7 @@
 		} catch (error) {
 			console.log(error);
 		}
-		loading = true
+		loading = true;
 	});
 
 	const getUsers = async () => {
@@ -47,7 +44,7 @@
 		for (const data of users) {
 			body.push([data.id, data.username, data.role.name]);
 		}
-		
+
 		tableControler.addDataBody(body);
 	};
 
@@ -62,7 +59,6 @@
 	};
 
 	const post = async () => {
-		
 		let data = {
 			username: username,
 			email: email,
@@ -72,32 +68,24 @@
 
 		try {
 			await api.post('/users', data);
-			
 		} catch (error) {}
 		modalController.closeModal();
-	
 	};
 
-
 	const edit = async () => {
-		
 		let data = {
 			username: username,
 			email: email,
 			password: password,
 			role: role
 		};
-	
+
 		(async () => {
-		try {
-			await api.put(`/users/${id}`, data);
-			
-			
-		} catch (error) {}
-		modalController.closeModal();
-		})()
-		
-	
+			try {
+				await api.put(`/users/${id}`, data);
+			} catch (error) {}
+			modalController.closeModal();
+		})();
 	};
 
 	const deleteUser = async (event) => {
@@ -116,7 +104,7 @@
 	};
 
 	const setEdit = async (event) => {
-		addOedit = false
+		addOedit = false;
 		await getRoles();
 
 		id = event.detail.id;
@@ -132,7 +120,8 @@
 		password = '';
 		email = '';
 		role = 'Elija...';
-		id = ""
+		id = '';
+		addOedit = true
 	};
 
 	const submit = async () => {
@@ -143,10 +132,9 @@
 			await edit();
 		}
 		await getUsers();
-		clearData()
+		clearData();
 		loading = true;
 	};
-	
 </script>
 
 <h1 on:click={loaData} class="text-center text-2xl font-bold ">Usuarios</h1>
@@ -188,23 +176,22 @@
 				<span class="label-text">Contraseña </span>
 			</label>
 			{#if addOedit}
-			<input
-				bind:value={password}
-				required
-				type="password"
-				ud="password"
-				placeholder="Contranea"
-				class="input input-info input-bordered focus:placeholder-info w-full"
-			/>
+				<input
+					bind:value={password}
+					required
+					type="password"
+					ud="password"
+					placeholder="Contranea"
+					class="input input-info input-bordered focus:placeholder-info w-full"
+				/>
 			{:else}
-			<input
-				bind:value={password}
-				
-				type="password"
-				ud="password"
-				placeholder="Contranea"
-				class="input input-info input-bordered focus:placeholder-info w-full"
-			/>
+				<input
+					bind:value={password}
+					type="password"
+					ud="password"
+					placeholder="Contranea"
+					class="input input-info input-bordered focus:placeholder-info w-full"
+				/>
 			{/if}
 
 			<label for="password" class="label mt-2">
@@ -219,7 +206,12 @@
 
 			<div class="modal-action">
 				<button class="btn btn-info w-1/2" type="submit">{btnSubmit}</button>
-				<label for="my-modal-2" type="button" class="btn btn-error text-white w-1/2" on:click={clearData}>Cancelar</label>
+				<label
+					for="my-modal-2"
+					type="button"
+					class="btn btn-error text-white w-1/2"
+					on:click={clearData}>Cancelar</label
+				>
 			</div>
 		</form>
 	</Modal>

@@ -1,7 +1,7 @@
 <svelte:options accessors />
 
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	import { onMount } from 'svelte';
 	import {fly} from "svelte/transition"
 
@@ -10,6 +10,12 @@
 	onMount(() => {
 		dispatch('message');
 	});
+
+	onDestroy(()=>{
+		body = []
+		console.log("des");
+	})
+
 	export let head = [];
 	export let body = [];
 
