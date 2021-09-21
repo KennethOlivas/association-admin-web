@@ -52,7 +52,7 @@
 				<tr class="group" >
 					{#each bodyTable as data}
 						<th
-							class="group-hover:bg-primary opacity-100 group-hover:bg-opacity-60 transition duration-200 capitalize cursor-pointer"
+							class="group-hover:bg-primary  opacity-100 group-hover:bg-opacity-60 transition duration-200 capitalize cursor-pointer"
 							>{data}
 						</th>
 					{/each}

@@ -21,6 +21,7 @@
 	let email;
 	let password;
 	let role;
+	
 	let addOedit = true;
 	$: btnSubmit = addOedit ? "agregar" : "editar"
 	let id 
@@ -114,7 +115,7 @@
 		loading = true;
 	};
 
-	const setEditUser = async (event) => {
+	const setEdit = async (event) => {
 		addOedit = false
 		await getRoles();
 
@@ -145,6 +146,7 @@
 		clearData()
 		loading = true;
 	};
+	
 </script>
 
 <h1 on:click={loaData} class="text-center text-2xl font-bold ">Usuarios</h1>
@@ -229,7 +231,7 @@
 		{head}
 		on:message={loaData}
 		on:deleteItem={deleteUser}
-		on:editItem={setEditUser}
+		on:editItem={setEdit}
 	/>
 {:else}
 	<Loader />
