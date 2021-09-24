@@ -91,7 +91,7 @@
 											</div>
 											<ul
 												tabindex="0"
-												class="p-2 shadow menu dropdown-content bg-primary rounded-box ml-1 w-52 text-white ml-1"
+												class="p-2 shadow menu dropdown-content bg-primary rounded-box w-52 text-white ml-1"
 											>
 												{#each menuItems.submenu as submenu}
 													<li>

@@ -39,6 +39,7 @@
 			console.log(error);
 		}
 		loading = true;
+		loaData();
 	});
 
 	const getUsers = async () => {
@@ -51,6 +52,7 @@
 			users = [];
 			users = [...res];
 		}
+		
 	};
 
 	const loaData = () => {
@@ -125,6 +127,7 @@
 		}
 
 		loading = true;
+		loaData();
 	};
 
 	const setEdit = async (event) => {
@@ -162,6 +165,7 @@
 
 		clearData();
 		loading = true;
+		loaData();
 	};
 
 	const openSearch = () => {

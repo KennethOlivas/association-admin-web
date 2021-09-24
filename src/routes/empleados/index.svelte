@@ -31,12 +31,17 @@
 	onMount(async () => {
 		try {
 			await getEmployees();
-		} catch (error) {}
-		loading = true;
+		} catch (error) {
+
+		} finally {
+			loading = true;
+		}
+		
+		
 	});
 
 	const edit = async () => {
-		loading = false;
+	
 		let data = {
 			name,
 			birthday,
@@ -92,7 +97,7 @@
 			employees = [];
 			employees = [...res];
 		}
-		loaData();
+	
 	};
 
 	const setEdit = async (event) => {
@@ -132,6 +137,7 @@
 		}
 
 		loading = true;
+		loaData();
 	};
 
 	const clearData = () => {
@@ -159,6 +165,7 @@
 		clearData();
 
 		loading = true;
+		loaData();
 	};
 </script>
 

@@ -30,10 +30,10 @@
 				});
 		} catch (error) {
 			console.log(error.message[0].messages[0].message);
-			title = "Error al iniciar sesion"
-			bodyModal = error.message[0].messages[0].message
-			modal.openModal()
-		};
+			title = 'Error al iniciar sesion';
+			bodyModal = error.message[0].messages[0].message;
+			modal.openModal();
+		}
 	};
 
 	const handleKeyPress = (e) => {
@@ -74,19 +74,7 @@
 					</div>
 
 					<div class="mt-7">
-						<button on:click={login} type="button" class="btn btn-primary w-full"> Login </button>
-					</div>
-
-					<div class="mt-7">
-						<div class="flex justify-center items-center">
-							<label class="mr-2">¿Eres nuevo?</label>
-							<a
-								href="#"
-								class=" text-blue-500 transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105"
-							>
-								Crea una cuenta
-							</a>
-						</div>
+						<button on:click={login} type="button" class="btn btn-primary w-full text-white"> Login </button>
 					</div>
 				</form>
 			</div>
@@ -94,10 +82,9 @@
 	</div>
 </div>
 
-<Modal bind:this={modal} tilte={title} >
+<Modal bind:this={modal} tilte={title}>
 	<p class="text-center mt-2">{bodyModal}</p>
 	<div class="modal-action">
 		<label for="my-modal-2" class="btn btn-error text-white w-full">Aceptar</label>
 	</div>
-
 </Modal>
