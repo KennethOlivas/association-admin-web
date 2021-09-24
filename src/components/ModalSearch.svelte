@@ -31,7 +31,7 @@
 <div class="modal ">
 	<div class="modal-box max-w-lg md:max-w-2xl lg:max-w-3xl overscroll-auto overflow-y-auto">
 		<div class="form-control">
-			<div class="flex justify-between">
+            <div class="flex justify-between">
 				<p class="text-2xl text-center font-semibold">{tilte}</p>
 				<div>
 					<button on:click={closeModal} class="btn btn-outline btn-square btn-sm">

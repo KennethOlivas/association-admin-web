@@ -1,56 +1,60 @@
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';
-	import * as api from "../../lib/api"
+	import Loader from '../../components/Loader.svelte';
+	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
 	let roles = [];
 	let loading = false;
-	let head = ['id', 'nombre', ];
+	let head = ['id', 'nombre'];
+	let body = [];
 
 	let modalController;
 	let tableControler;
 
 	onMount(async () => {
 		try {
-			let res = await api.get('/users-permissions/roles').then((response) => response.json());
-			
-			roles = [...res]
-			tableControler.body = roles;
+			await getRole();
 		} catch (error) {
 			console.log(error);
 		}
 		loading = true;
 	});
 
-	
+	const getRole = async () => {
+		try {
+			let res = await api.get('/users-permissions/roles').then((response) => response.json());
 
-	const test = () => {
-		console.log(tableControler.body);
+			roles = [];
+			roles = [...res.roles];
+			console.log(roles);
+			loaData();
+		} catch (error) {
+			console.log(error);
+		}
 	};
+
+	const loaData = () => {
+		body = [];
+		for (const data of roles) {
+			body.push([data.id, data.name]);
+		}
+		tableControler.addDataBody(body);
+	};
+	
 </script>
 
-<h1 on:click={test} class="text-center text-2xl font-bold text-gray-50">Roles</h1>
+<h1 class="text-center text-2xl font-bold text-gray-50">Roles</h1>
 
-<Modal tilte="Agregar rol" btnName="Agregar rol">
-	<label for="username" class="label">
-		<span class="label-text">Nombre del </span>
-	</label>
-	<input
-		type="text"
-		ud="username"
-		placeholder="Nombre usuario"
-		class="input input-primary input-bordered focus:placeholder-primary"
-	/>
-	<div class="modal-action">
-		<button class="btn btn-primary w-1/2" type="button"
-			><label for="my-modal-2" class="">Agregar</label></button
-		>
-		<label for="my-modal-2" class="btn w-1/2">Cancelar</label>
-	</div>
-</Modal>
-
-<Table {head}on:message={(tableControler.body = [...roles])}>
-	<button class="btn  btn-ghost btn-circle btn-sm mx-1 "><i class="fas fa-pen" /></button>
-
-	<button class="btn  btn-ghost btn-circle btn-sm mx-1"><i class="fas fa-trash-alt" /></button>
-</Table>
+<div class="flex justify-end mx-2 mb-2">
+	<a
+		href="https://young-ocean-73880.herokuapp.com/admin/settings/users-permissions/roles"
+		target="_blank"
+		class="btn btn-info"><i class="fas fa-toolbox mr-2 text-lg"></i>Administrar Roles</a
+	>
+</div>
+{#if loading}
+	<Table bind:this={tableControler} {head} on:message={loaData} />
+{:else}
+	<Loader />
+{/if}

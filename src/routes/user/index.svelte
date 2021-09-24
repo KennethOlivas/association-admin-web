@@ -1,6 +1,7 @@
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';
+	import ModalSearch from '../../components/ModalSearch.svelte';
 	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
 	import Loader from '../../components/Loader.svelte';
@@ -10,7 +11,12 @@
 	let head = ['id', 'nombre', 'role'];
 	let body = [];
 	let modalController;
+	let modalSearchController;
 	let tableControler;
+	let notFound = false;
+
+	let search = [];
+	let inputSearch;
 
 	let roles = [];
 
@@ -19,6 +25,8 @@
 	let email;
 	let password;
 	let role;
+	let employee;
+	let employeeName
 
 	let addOedit = true;
 	$: btnSubmit = addOedit ? 'agregar' : 'editar';
@@ -34,9 +42,15 @@
 	});
 
 	const getUsers = async () => {
-		let res = await api.get('/users').then((response) => response.json());
-		users = [];
-		users = [...res];
+		let res;
+		try {
+			res = await api.get('/users').then((response) => response.json());
+			console.log(res);
+		} catch (error) {
+		} finally {
+			users = [];
+			users = [...res];
+		}
 	};
 
 	const loaData = () => {
@@ -44,17 +58,19 @@
 		for (const data of users) {
 			body.push([data.id, data.username, data.role.name]);
 		}
+		console.log("entre");
 
 		tableControler.addDataBody(body);
 	};
 
 	const getRoles = async () => {
+		let res;
 		try {
-			let res = await api.get('/users-permissions/roles').then((response) => response.json());
-			roles = res.roles;
-			console.log(roles);
+			res = await api.get('/users-permissions/roles').then((response) => response.json());
 		} catch (error) {
 			console.log(error);
+		} finally {
+			roles = res.roles;
 		}
 	};
 
@@ -63,12 +79,16 @@
 			username: username,
 			email: email,
 			password: password,
-			role: role
+			role: role,
+			employee: employee.id
 		};
 
 		try {
 			await api.post('/users', data);
-		} catch (error) {}
+		} catch (error) {
+		} finally {
+			await getUsers();
+		}
 		modalController.closeModal();
 	};
 
@@ -77,13 +97,17 @@
 			username: username,
 			email: email,
 			password: password,
-			role: role
+			role: role,
+			employee: employee.id
 		};
 
 		(async () => {
 			try {
 				await api.put(`/users/${id}`, data);
-			} catch (error) {}
+			} catch (error) {
+			} finally {
+				await getUsers();
+			}
 			modalController.closeModal();
 		})();
 	};
@@ -112,6 +136,8 @@
 		username = data.username;
 		email = data.email;
 		role = data.role.id;
+		employee = data.employee
+		employeeName = data.employee.name
 		modalController.openModal();
 	};
 
@@ -121,7 +147,9 @@
 		email = '';
 		role = 'Elija...';
 		id = '';
-		addOedit = true
+		addOedit = true;
+		employeeName = ""
+		employee = ""
 	};
 
 	const submit = async () => {
@@ -131,9 +159,29 @@
 		} else {
 			await edit();
 		}
-		await getUsers();
+
 		clearData();
 		loading = true;
+	};
+
+	const openSearch = () => {
+		modalSearchController.openModal();
+	};
+
+	const searchEmployee = async (search) => {
+		let res;
+		try {
+			res = await api.get(`/employees/${search}`).then((response) => response.json());
+			console.log(res);
+			employee = res;
+			employeeName = employee.name
+			username = employeeName
+			email = employee.email
+			res.statusCode ? (notFound = true) : (notFound = false);
+			res.statusCode ? (console.log("")) : (modalSearchController.closeModal())
+		} catch (error) {
+			console.log(error);
+		}
 	};
 </script>
 
@@ -148,17 +196,27 @@
 		icon="fas fa-user-plus"
 	>
 		<form class="form-control" on:submit|preventDefault={submit}>
-			<label for="username" class="label mt-2">
-				<span class="label-text">Nombre de usuario </span>
-			</label>
-			<input
-				bind:value={username}
-				required
-				type="text"
-				ud="username"
-				placeholder="Nombre usuario"
-				class="input input-info input-bordered focus:placeholder-info w-full"
-			/>
+			<div class="flex justify-center items-center">
+				<div class="w-1/2 mr-2">
+					<label for="username" class="label mt-2">
+						<span class="label-text">Nombre de usuario </span>
+					</label>
+					<input
+						bind:value={username}
+						required
+						type="text"
+						ud="username"
+						placeholder="Nombre usuario"
+						class="input input-info input-bordered focus:placeholder-info w-full"
+					/>
+				</div>
+
+				<div class="w-1/2 flex justify-center items-center mt-11 ml-2">
+					<button class="btn btn-outline w-full" on:click={openSearch} type="button"
+						><i class="fas fa-search-plus mr-2 text-xl" />Buscar empleado</button
+					>
+				</div>
+			</div>
 
 			<label for="password" class="label mt-2">
 				<span class="label-text">Correo electronico</span>
@@ -204,6 +262,18 @@
 				{/each}
 			</select>
 
+			<label for="password" class="label mt-2">
+				<span class="label-text">Empleado</span>
+			</label>
+			<input
+				bind:value={employeeName}
+				required
+				disabled
+				type="text"
+				placeholder="Empleado"
+				class="input input-info input-bordered focus:placeholder-info w-full"
+			/>
+
 			<div class="modal-action">
 				<button class="btn btn-info w-1/2" type="submit">{btnSubmit}</button>
 				<label
@@ -216,6 +286,44 @@
 		</form>
 	</Modal>
 </div>
+
+<ModalSearch bind:this={modalSearchController} tilte="Buscar Empleado">
+	<form class="form-control" on:submit|preventDefault={searchEmployee(inputSearch)}>
+		<div class="form-control">
+			<div class="relative mt-4">
+				<input
+					bind:value={inputSearch}
+					type="text"
+					placeholder="Buscar"
+					class="w-full pr-16 input input-info input-bordered"
+				/>
+				<button
+					type="submit"
+					class="absolute top-0 right-0 rounded-l-none btn btn-primary text-white">buscar</button
+				>
+			</div>
+		</div>
+	</form>
+
+	<div class="alert alert-error mt-4 {notFound ? '' : 'hidden'}">
+		<div class="flex-1">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				class="w-6 h-6 mx-2 stroke-current"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+				/>
+			</svg>
+			<p>Usuario no encontrado</p>
+		</div>
+	</div>
+</ModalSearch>
 
 {#if loading}
 	<Table

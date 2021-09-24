@@ -36,6 +36,7 @@
 	});
 
 	const edit = async () => {
+		loading = false;
 		let data = {
 			name,
 			birthday,
@@ -50,7 +51,10 @@
 		(async () => {
 			try {
 				await api.put(`/employees/${id}`, data);
-			} catch (error) {}
+			} catch (error) {
+			} finally {
+				await getEmployees();
+			}
 			modalController.closeModal();
 		})();
 	};
@@ -70,17 +74,25 @@
 
 		try {
 			await api.post('/employees', data);
-		} catch (error) {}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			await getEmployees();
+		}
 		modalController.closeModal();
 	};
 
 	const getEmployees = async () => {
+		let res;
 		try {
-			let res = await api.get('/employees').then((response) => response.json());
+			res = await api.get('/employees').then((response) => response.json());
+			console.log(res);
+		} catch (error) {
+		} finally {
 			employees = [];
 			employees = [...res];
-			loaData();
-		} catch (error) {}
+		}
+		loaData();
 	};
 
 	const setEdit = async (event) => {
@@ -137,12 +149,13 @@
 
 	const submit = async () => {
 		loading = false;
+
 		if (addOrEdit) {
 			await post();
 		} else {
 			await edit();
 		}
-		await getEmployees();
+
 		clearData();
 
 		loading = true;
@@ -151,8 +164,8 @@
 
 <h1 class="text-center text-2xl font-bold text-gray-700">Empleados</h1>
 <div class="flex items-center justify-end">
-	<Modal tilte="Agregar empleado" btnName="Agregar" bind:this={modalController}>
-		<form class="form-control" on:submit|preventDefault={submit}>
+	<Modal tilte="Agregar empleado" btnName="Agregar" icon="fas fa-plus" bind:this={modalController}>
+		<form class="form-control " on:submit|preventDefault={submit}>
 			<label for="name" class="label">
 				<span class="label-text">Nombre de empleado </span>
 			</label>
@@ -165,7 +178,7 @@
 			/>
 
 			<div class="w-full flex">
-				<div class="w-1/2">
+				<div class="w-1/2 mr-2">
 					<label for="name" class="label">
 						<span class="label-text">Identificacion</span>
 					</label>
@@ -174,11 +187,11 @@
 						type="text"
 						required
 						placeholder=""
-						class="input input-primary input-bordered focus:placeholder-primary w-52"
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
 					/>
 				</div>
 
-				<div class="w-1/2">
+				<div class="w-1/2 ml-2">
 					<label for="name" class="label">
 						<span class="label-text">Profession</span>
 					</label>
@@ -187,7 +200,7 @@
 						type="text"
 						required
 						placeholder=""
-						class="input input-primary input-bordered focus:placeholder-primary w-56 "
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
 					/>
 				</div>
 			</div>
