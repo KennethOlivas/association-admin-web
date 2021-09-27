@@ -14,6 +14,7 @@
 
 	export const closeModal = () => {
 		modal = false;
+		dispatch('closeModal');
 	};
 
 	export const clicked = () => {

@@ -4,6 +4,7 @@
 	import ModalSearch from '../../components/ModalSearch.svelte';
 	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
+	import {sleep} from '../../lib/utils'
 	import Loader from '../../components/Loader.svelte';
 
 	let users = [];
@@ -55,14 +56,13 @@
 		
 	};
 
-	const loaData = () => {
+	const loaData = async () => {
 		body = [];
 		for (const data of users) {
 			body.push([data.id, data.username, data.role.name]);
 		}
-		console.log("entre");
-
-		tableControler.addDataBody(body);
+		await sleep(200)
+		tableControler.body = body;
 	};
 
 	const getRoles = async () => {
@@ -162,10 +162,9 @@
 		} else {
 			await edit();
 		}
-
+		await sleep(500);
 		clearData();
 		loading = true;
-		loaData();
 	};
 
 	const openSearch = () => {

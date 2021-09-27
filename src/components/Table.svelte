@@ -6,21 +6,19 @@
 	import {fly} from "svelte/transition"
 
 	const dispatch = createEventDispatcher();
+	export let head = [];
+	export let body = [];
+
 
 	onMount(() => {
 		dispatch('message');
 	});
 
-	onDestroy(()=>{
-		body = []
-		console.log("des");
-	})
 
-	export let head = [];
-	export let body = [];
 
-	export const addDataBody = (e) => {
-		body = e;
+
+	export const addDataBody = (data) => {
+		body = data;
 	};
 
 	export const reload = (data) => {
@@ -44,8 +42,8 @@
 </script>
 
 <div class="overflow-hidden mx-4">
-	<table class="table w-full table-zebra " transition:fly="{{ y: 200, duration: 400 }}">
-		<thead>
+	<table class="table w-full table-zebra ">
+		<thead  transition:fly="{{ y: 200, duration: 400 }}">
 			<tr>
 				{#each head as header}
 					<th>{header}</th>
@@ -57,12 +55,12 @@
 			{#each body as bodyTable}
 				<tr class="group" >
 					{#each bodyTable as data}
-						<th
+						<th  transition:fly="{{ y: 200, duration: 400 }}"
 							class="group-hover:bg-primary  opacity-100 group-hover:bg-opacity-60 transition duration-200 capitalize cursor-pointer"
 							>{data}
 						</th>
 					{/each}
-					<th
+					<th  transition:fly="{{ y: 200, duration: 400 }}"
 						class="group-hover:bg-primary opacity-100 group-hover:bg-opacity-60 transition duration-200 cursor-pointer"
 					>
 						<button class="btn  btn-ghost btn-circle btn-sm mx-1 " on:click={editItem(bodyTable[0])}

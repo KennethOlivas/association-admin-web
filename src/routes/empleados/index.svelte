@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import Loader from '../../components/Loader.svelte';
 	import { countryList } from '../../lib/utils';
+	import { sleep } from '../../lib/utils';
 
 	let head = [];
 	let body = [];
@@ -32,16 +33,12 @@
 		try {
 			await getEmployees();
 		} catch (error) {
-
 		} finally {
 			loading = true;
 		}
-		
-		
 	});
 
 	const edit = async () => {
-	
 		let data = {
 			name,
 			birthday,
@@ -97,7 +94,6 @@
 			employees = [];
 			employees = [...res];
 		}
-	
 	};
 
 	const setEdit = async (event) => {
@@ -115,12 +111,12 @@
 		modalController.openModal();
 	};
 
-	const loaData = () => {
+	const loaData = async () => {
 		body = [];
 		for (const data of employees) {
 			body.push([data.id, data.name, data.nationality, data.identification]);
 		}
-
+		await sleep(200);
 		tableControler.addDataBody(body);
 	};
 
@@ -161,9 +157,8 @@
 		} else {
 			await edit();
 		}
-
+		await sleep(500);
 		clearData();
-
 		loading = true;
 		loaData();
 	};
@@ -171,7 +166,13 @@
 
 <h1 class="text-center text-2xl font-bold text-gray-700">Empleados</h1>
 <div class="flex items-center justify-end">
-	<Modal tilte="Agregar empleado" btnName="Agregar" icon="fas fa-plus" bind:this={modalController}>
+	<Modal
+		tilte="Agregar empleado"
+		btnName="Agregar"
+		icon="fas fa-plus"
+		bind:this={modalController}
+		on:closeModal={clearData}
+	>
 		<form class="form-control " on:submit|preventDefault={submit}>
 			<label for="name" class="label">
 				<span class="label-text">Nombre de empleado </span>
@@ -248,7 +249,7 @@
 				<span class="label-text">Genero</span>
 			</label>
 			<select bind:value={gender} class="select select-bordered select-info w-full" required>
-				<option disabled="disabled" selected="selected">Elija...</option>
+				<option disabled="disabled" value="" selected="selected">Elija...</option>
 				<option value="Masculino">Masculino</option>
 				<option value="Femenino">Femenino</option>
 			</select>
@@ -257,7 +258,7 @@
 				<span class="label-text">nacionalidad</span>
 			</label>
 			<select bind:value={nationality} class="select select-bordered select-info w-full" required>
-				<option disabled="disabled" selected="selected">Elija...</option>
+				<option disabled="disabled" value="" selected="selected">Elija...</option>
 				{#each countryList as country}
 					<option value={country}>{country}</option>
 				{/each}
