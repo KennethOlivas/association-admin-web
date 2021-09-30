@@ -6,14 +6,14 @@
 	export let tilte;
 	export let btnName;
 	export let icon;
-	let modal = false;
+	export let ModalSearch = false;
 
 	export const openModal = () => {
-		modal = true;
+		ModalSearch = true;
 	};
 
 	export const closeModal = () => {
-		modal = false;
+		ModalSearch = false;
 	};
 
 	export const clicked = () => {
@@ -27,7 +27,7 @@
 	class="{btnName ? '' : 'hidden'} btn btn-info hover:bg-blue-600 my-4 mx-4 modal-button"
 	><i class="{icon} mr-2 text-lg" />{btnName}</label
 >
-<input type="checkbox" bind:checked={modal} id="my-modal-2" class="modal-toggle" />
+<input type="checkbox" bind:checked={ModalSearch} id="my-modal-2" class="modal-toggle" />
 <div class="modal ">
 	<div class="modal-box max-w-lg md:max-w-2xl lg:max-w-3xl overscroll-auto overflow-y-auto">
 		<div class="form-control">
