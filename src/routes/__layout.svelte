@@ -17,9 +17,13 @@
 
 		switch (route) {
 			case '/role':
-			case '/empleados':
+			case '/employees':
 			case '/user':
 				current = 2;
+				break;
+			case '/request':
+			case 'associates':
+				current = 3;
 				break;
 			default:
 				current = 1;
@@ -48,7 +52,27 @@
 				},
 				{
 					name: 'Empleados',
-					route: 'empleados'
+					route: 'employees'
+				}
+			]
+		},
+		{
+			id: 3,
+			name: 'Socios',
+			icon: 'fas fa-users',
+			route: '',
+			submenu: [
+				{
+					name: 'Solicitudes',
+					route: 'request'
+				},
+				{
+					name: 'Socios',
+					route: 'associates'
+				},
+				{
+					name: 'Cuentas',
+					route: 'acounts'
 				}
 			]
 		}
@@ -143,32 +167,28 @@
 									/>
 								</svg>
 							</div>
-							<ul
-								tabindex="0"
-								class="shadow menu dropdown-content bg-base-100 rounded-box w-96"
-							>
+							<ul tabindex="0" class="shadow menu dropdown-content bg-base-100 rounded-box w-96">
 								{#each menu as menuItems, i}
 									{#if menuItems.submenu}
-									<li> 
-										
-										<div class="collapse w-96 collapse-arrow">
-											<input type="checkbox"/> 
-											<p class="collapse-title mt-2">
-												<span class="text-left mr-1">
-													<i class={menuItems.icon} />
-												</span>
-											 {menuItems.name}
-											</p> 
-											<div class="collapse-content"> 
-												{#each menuItems.submenu as submenu}
-												<li>
-													<a href={submenu.route} class="w-full pl-6 p-2 my-2"  
-														>{submenu.name}</a>
-												</li>
-											{/each}
+										<li>
+											<div class="collapse w-96 collapse-arrow">
+												<input type="checkbox" />
+												<p class="collapse-title mt-2">
+													<span class="text-left mr-1">
+														<i class={menuItems.icon} />
+													</span>
+													{menuItems.name}
+												</p>
+												<div class="collapse-content">
+													{#each menuItems.submenu as submenu}
+														<li>
+															<a href={submenu.route} class="w-full pl-6 p-2 my-2">{submenu.name}</a
+															>
+														</li>
+													{/each}
+												</div>
 											</div>
-										  </div> 
-									</li>
+										</li>
 									{:else}
 										<li>
 											<a
@@ -187,7 +207,6 @@
 									{/if}
 								{/each}
 							</ul>
-							
 						</div>
 					</div>
 					<div class="relative z-20 flex flex-col justify-end h-full px-3 md:w-full">
@@ -216,6 +235,5 @@
 				<slot />
 			</div>
 		</div>
-		
 	</main>
 {/if}

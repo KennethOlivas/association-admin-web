@@ -53,7 +53,7 @@
 	>
 </div>
 {#if loading}
-	<Table bind:this={tableControler} {head} on:message={loaData} />
+	<Table bind:this={tableControler} {head} on:message={loaData} hiddenButton={true} />
 {:else}
 	<Loader />
 {/if}

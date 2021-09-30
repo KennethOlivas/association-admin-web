@@ -4,17 +4,21 @@
 	import ModalSearch from '../../components/ModalSearch.svelte';
 	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
-	import {sleep} from '../../lib/utils'
+	import { sleep } from '../../lib/utils';
 	import Loader from '../../components/Loader.svelte';
+	import { user } from '../../store/session';
+	import ModalInfo from '../../components/ModalInfo.svelte';
 
 	let users = [];
 	let loading = false;
 	let head = ['id', 'nombre', 'role'];
 	let body = [];
 	let modalController;
-	let modalSearchController;
+	let searchController;
 	let tableControler;
 	let notFound = false;
+	let modalInfo;
+	let dataModalInfo = [];
 
 	let search = [];
 	let inputSearch;
@@ -27,7 +31,7 @@
 	let password;
 	let role;
 	let employee;
-	let employeeName
+	let employeeName;
 
 	let addOedit = true;
 	$: btnSubmit = addOedit ? 'agregar' : 'editar';
@@ -47,13 +51,11 @@
 		let res;
 		try {
 			res = await api.get('/users').then((response) => response.json());
-			console.log(res);
 		} catch (error) {
 		} finally {
 			users = [];
 			users = [...res];
 		}
-		
 	};
 
 	const loaData = async () => {
@@ -61,7 +63,7 @@
 		for (const data of users) {
 			body.push([data.id, data.username, data.role.name]);
 		}
-		await sleep(200)
+		await sleep(200);
 		tableControler.body = body;
 	};
 
@@ -118,7 +120,10 @@
 		loading = false;
 
 		let id = event.detail.id;
-
+		if ($user.id === id) {
+			loading = true;
+			return;
+		}
 		try {
 			await api.DELETE(`/users/${id}`);
 			await getUsers();
@@ -139,8 +144,8 @@
 		username = data.username;
 		email = data.email;
 		role = data.role.id;
-		employee = data.employee
-		employeeName = data.employee.name
+		employee = data.employee;
+		employeeName = data.employee.name;
 		modalController.openModal();
 	};
 
@@ -151,8 +156,8 @@
 		role = 'Elija...';
 		id = '';
 		addOedit = true;
-		employeeName = ""
-		employee = ""
+		employeeName = '';
+		employee = '';
 	};
 
 	const submit = async () => {
@@ -168,7 +173,7 @@
 	};
 
 	const openSearch = () => {
-		modalSearchController.openModal();
+		searchController.ModalSearch = true;
 	};
 
 	const searchEmployee = async (search) => {
@@ -177,16 +182,53 @@
 			res = await api.get(`/employees/${search}`).then((response) => response.json());
 			console.log(res);
 			employee = res;
-			employeeName = employee.name
-			username = employeeName
-			email = employee.email
+			employeeName = employee.name;
+			username = employeeName;
+			email = employee.email;
 			res.statusCode ? (notFound = true) : (notFound = false);
-			res.statusCode ? (console.log("")) : (modalSearchController.closeModal())
+			res.statusCode ? console.log('') : searchController.closeModal();
 		} catch (error) {
 			console.log(error);
 		}
 	};
+
+	const toOpenModalInfo = (e) => {
+		dataModalInfo = [];
+		let id = e.detail.id;
+		let data = users.find((e) => e.id === id);
+		dataModalInfo = data;
+		console.log(dataModalInfo);
+		modalInfo.openModal();
+	};
 </script>
+
+<div>
+	<ModalInfo bind:this={modalInfo} title="Informacion">
+		<div class="grid md:grid-cols-2  text-gray-700 mt-4">
+			{#each Object.entries(dataModalInfo) as [key, value]}
+				{#if key === 'employee' || key === 'role'}
+					<div class="grid grid-cols-2">
+						<p class="py-2 px-0 font-semibold capitalize">{key}:</p>
+						{#if value === null}
+							<p class="py-2">No</p>
+						{:else}
+							<p class="py-2 truncate">{value.name}</p>
+						{/if}
+					</div>
+				{:else}
+					<div class="grid grid-cols-2">
+						<p class="py-2 px-0 font-semibold capitalize">{key}:</p>
+						{#if value === null}
+							<p class="py-2">No</p>
+						{:else}
+							<p class="py-2 truncate">{value}</p>
+						{/if}
+					</div>
+				{/if}
+			{/each}
+		</div>
+	</ModalInfo>
+</div>
 
 <h1 on:click={loaData} class="text-center text-2xl font-bold ">Usuarios</h1>
 
@@ -290,48 +332,51 @@
 	</Modal>
 </div>
 
-<ModalSearch bind:this={modalSearchController} tilte="Buscar Empleado">
-	<form class="form-control" on:submit|preventDefault={searchEmployee(inputSearch)}>
-		<div class="form-control">
-			<div class="relative mt-4">
-				<input
-					bind:value={inputSearch}
-					type="text"
-					placeholder="Buscar"
-					class="w-full pr-16 input input-info input-bordered"
-				/>
-				<button
-					type="submit"
-					class="absolute top-0 right-0 rounded-l-none btn btn-primary text-white">buscar</button
+<div>
+	<ModalSearch bind:this={searchController} tilte="Buscar Empleado">
+		<form class="form-control" on:submit|preventDefault={searchEmployee(inputSearch)}>
+			<div class="form-control">
+				<div class="relative mt-4">
+					<input
+						bind:value={inputSearch}
+						type="text"
+						placeholder="Buscar"
+						class="w-full pr-16 input input-info input-bordered"
+					/>
+					<button
+						type="submit"
+						class="absolute top-0 right-0 rounded-l-none btn btn-primary text-white">buscar</button
+					>
+				</div>
+			</div>
+		</form>
+
+		<div class="alert alert-error mt-4 {notFound ? '' : 'hidden'}">
+			<div class="flex-1">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					class="w-6 h-6 mx-2 stroke-current"
 				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+					/>
+				</svg>
+				<p>Usuario no encontrado</p>
 			</div>
 		</div>
-	</form>
-
-	<div class="alert alert-error mt-4 {notFound ? '' : 'hidden'}">
-		<div class="flex-1">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				class="w-6 h-6 mx-2 stroke-current"
-			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-				/>
-			</svg>
-			<p>Usuario no encontrado</p>
-		</div>
-	</div>
-</ModalSearch>
+	</ModalSearch>
+</div>
 
 {#if loading}
 	<Table
 		bind:this={tableControler}
 		{head}
+		on:handleTable={toOpenModalInfo}
 		on:message={loaData}
 		on:deleteItem={deleteUser}
 		on:editItem={setEdit}

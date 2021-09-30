@@ -6,6 +6,7 @@
 	import Loader from '../../components/Loader.svelte';
 	import { countryList } from '../../lib/utils';
 	import { sleep } from '../../lib/utils';
+	import ModalInfo from '../../components/ModalInfo.svelte';
 
 	let head = [];
 	let body = [];
@@ -17,6 +18,10 @@
 	let addOrEdit = true;
 	$: btnSubmit = addOrEdit ? 'agregar' : 'editar';
 	let modalController;
+	let page = 1;
+	const limit = 8;
+	let modalInfo;
+	let dataModalInfo = [];
 
 	//variables del api
 	let name;
@@ -28,6 +33,9 @@
 	let marital_status;
 	let nationality;
 	let profession;
+
+	//busqueda
+	let searchData;
 
 	onMount(async () => {
 		try {
@@ -86,14 +94,31 @@
 
 	const getEmployees = async () => {
 		let res;
+		const start = +page === 1 ? 0 : (+page - 1) * 3;
+
 		try {
-			res = await api.get('/employees').then((response) => response.json());
-			console.log(res);
+			res = await api
+				.get(`/employees?_sort=id:DESC&_limit=${limit}&_start=${start}`)
+				.then((response) => response.json());
 		} catch (error) {
 		} finally {
 			employees = [];
 			employees = [...res];
 		}
+	};
+
+	const nextPage = async () => {
+		employees.length > limit - 1 ? page++ : (page = page);
+		await getEmployees();
+		loaData();
+	};
+
+	const previusPage = async () => {
+		page > 1 ? page-- : (page = 1);
+
+		console.log(page);
+		await getEmployees();
+		loaData();
 	};
 
 	const setEdit = async (event) => {
@@ -162,10 +187,60 @@
 		loading = true;
 		loaData();
 	};
+
+	const search = async () => {
+		let res;
+		try {
+			res = await api
+				.get(`/employees?name_contains=${searchData}`)
+				.then((response) => response.json());
+			console.log(res);
+		} catch (error) {
+		} finally {
+			employees = [];
+			employees = [...res];
+		}
+		console.log(searchData);
+		loaData();
+	};
+
+	const toOpenModalInfo = (e) => {
+		dataModalInfo = [];
+		let id = e.detail.id;
+		let data = employees.find((e) => e.id === id);
+		dataModalInfo = data;
+		console.log(dataModalInfo);
+		modalInfo.openModal();
+	};
 </script>
 
+<div>
+	<ModalInfo bind:this={modalInfo} title="Informacion de empleado">
+		<div class="grid md:grid-cols-2  text-gray-700 mt-4">
+			{#each Object.entries(dataModalInfo) as [key, value]}
+				<div class="grid grid-cols-2">
+					<p class="py-2 px-0 font-semibold capitalize">{key}:</p>
+					{#if value === null}
+						<p class="py-2">No</p>
+					{:else}
+						<p class="py-2 truncate">{value}</p>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	</ModalInfo>
+</div>
+
 <h1 class="text-center text-2xl font-bold text-gray-700">Empleados</h1>
-<div class="flex items-center justify-end">
+<div class="flex items-center justify-between">
+	<input
+		on:change={search}
+		bind:value={searchData}
+		type="text"
+		required
+		placeholder="Buscar empleado..."
+		class="input input-primary input-bordered focus:placeholder-primary mx-4 w-full"
+	/>
 	<Modal
 		tilte="Agregar empleado"
 		btnName="Agregar"
@@ -280,6 +355,7 @@
 	<Table
 		bind:this={tableControler}
 		{head}
+		on:handleTable={toOpenModalInfo}
 		on:message={loaData}
 		on:deleteItem={deleteEmployee}
 		on:editItem={setEdit}
@@ -287,3 +363,14 @@
 {:else}
 	<Loader />
 {/if}
+
+<div class="mt-4 mr-2 flex justify-end">
+	<div class="btn-group">
+		<button class="btn btn-outline btn-wide" on:click={previusPage}>
+			<i class="fas fa-arrow-left text-lg" />
+		</button>
+		<button class="btn btn-outline btn-wide" on:click={nextPage}>
+			<i class="fas fa-arrow-right text-lg" />
+		</button>
+	</div>
+</div>
