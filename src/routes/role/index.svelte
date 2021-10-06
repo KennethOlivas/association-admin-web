@@ -4,6 +4,7 @@
 	import Loader from '../../components/Loader.svelte';
 	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	let roles = [];
 	let loading = false;
 	let head = ['id', 'nombre'];
@@ -43,9 +44,9 @@
 	};
 </script>
 
-<h1 class="text-center text-2xl font-bold ">Roles</h1>
+<h1 class="text-center text-2xl font-bold" transition:fade={{ duration: 100 }}>Roles</h1>
 
-<div class="flex justify-end mx-2 mb-2">
+<div class="flex justify-end mx-2 mb-2" transition:fade={{ duration: 100 }}>
 	<a
 		href="https://young-ocean-73880.herokuapp.com/admin/settings/users-permissions/roles"
 		target="_blank"

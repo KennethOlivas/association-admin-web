@@ -8,6 +8,7 @@
 	import Loader from '../../components/Loader.svelte';
 	import { user } from '../../store/session';
 	import ModalInfo from '../../components/ModalInfo.svelte';
+	import { fade } from 'svelte/transition';
 
 	let users = [];
 	let loading = false;
@@ -230,9 +231,9 @@
 	</ModalInfo>
 </div>
 
-<h1 on:click={loaData} class="text-center text-2xl font-bold ">Usuarios</h1>
+<h1 on:click={loaData} class="text-center text-2xl font-bold" transition:fade={{ duration: 400 }}>Usuarios</h1>
 
-<div class="flex items-center justify-end">
+<div class="flex items-center justify-end" transition:fade={{ duration: 400 }}>
 	<Modal
 		bind:this={modalController}
 		on:onClick={getRoles}
@@ -380,6 +381,7 @@
 		on:message={loaData}
 		on:deleteItem={deleteUser}
 		on:editItem={setEdit}
+		
 	/>
 {:else}
 	<Loader />

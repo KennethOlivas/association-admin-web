@@ -7,6 +7,7 @@
 	import { countryList } from '../../lib/utils';
 	import { sleep } from '../../lib/utils';
 	import ModalInfo from '../../components/ModalInfo.svelte';
+	import { fade } from 'svelte/transition';
 
 	let head = [];
 	let body = [];
@@ -231,8 +232,8 @@
 	</ModalInfo>
 </div>
 
-<h1 class="text-center text-2xl font-bold text-gray-700">Empleados</h1>
-<div class="flex items-center justify-between">
+<h1 class="text-center text-2xl font-bold text-gray-700" transition:fade={{ duration: 100 }}>Empleados</h1>
+<div class="flex items-center justify-between" transition:fade={{ duration: 100 }}>
 	<input
 		on:change={search}
 		bind:value={searchData}
@@ -359,18 +360,11 @@
 		on:message={loaData}
 		on:deleteItem={deleteEmployee}
 		on:editItem={setEdit}
+		on:nextPage={nextPage}
+		on:previusPage={previusPage}
 	/>
 {:else}
 	<Loader />
 {/if}
 
-<div class="mt-4 mr-2 flex justify-end">
-	<div class="btn-group">
-		<button class="btn btn-outline btn-wide" on:click={previusPage}>
-			<i class="fas fa-arrow-left text-lg" />
-		</button>
-		<button class="btn btn-outline btn-wide" on:click={nextPage}>
-			<i class="fas fa-arrow-right text-lg" />
-		</button>
-	</div>
-</div>
+

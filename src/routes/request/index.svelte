@@ -7,11 +7,14 @@
 	import { countryList } from '../../lib/utils';
 	import { sleep } from '../../lib/utils';
 	import ModalInfo from '../../components/ModalInfo.svelte';
+	import { fade } from 'svelte/transition';
 
+	//Variables de las tabla
 	let head = [];
 	let body = [];
 	head = ['id', 'nombre', 'identificacion', 'profesion'];
 	let tableControler;
+	//Variables de la api
 	let associateRequests = [];
 	let loading = false;
 	let id;
@@ -19,6 +22,7 @@
 	$: btnSubmit = addOrEdit ? 'agregar' : 'editar';
 	let modalController;
 	let page = 1;
+	// limite de paginacion
 	const limit = 8;
 	let modalInfo;
 	let dataModalInfo = [];
@@ -49,12 +53,11 @@
 		let data = {
 			name,
 			birthday,
-			business_mail,
-			email,
+			lastname,
 			gender,
 			identification,
-			marital_status,
-			nationality,
+			academy_level,
+			observation,
 			profession
 		};
 		(async () => {
@@ -113,7 +116,7 @@
 			academy_level,
 			observation,
 			profession,
-			associate_requests
+			associate_request: associate_requests.id
 		};
 		console.log(data);
 		try {
@@ -132,7 +135,6 @@
 			res = await api
 				.get(`/associate-requests?_sort=id:DESC&_limit=${limit}&_start=${start}`)
 				.then((response) => response.json());
-			console.log(res);
 		} catch (error) {
 		} finally {
 			associateRequests = [];
@@ -162,7 +164,9 @@
 		birthday = data.birthday;
 		gender = data.gender;
 		identification = data.identification;
-		nationality = data.nationality;
+		lastname = data.lastname;
+		academy_level = data.academy_level;
+		observation = data.observation;
 		profession = data.profession;
 		modalController.openModal();
 	};
@@ -198,6 +202,8 @@
 		gender = '';
 		identification = '';
 		profession = '';
+		academy_level = '';
+		lastname = '';
 		addOrEdit = true;
 	};
 
@@ -239,13 +245,15 @@
 		console.log(dataModalInfo);
 		modalInfo.openModal();
 	};
+
+	
 </script>
 
 <div>
-	<ModalInfo bind:this={modalInfo} title="Informacion de empleado">
+	<ModalInfo bind:this={modalInfo} title="Informacion de solicitud">
 		<div class="grid md:grid-cols-2  text-gray-700 mt-4">
 			{#each Object.entries(dataModalInfo) as [key, value]}
-				{#if key !== 'Gender'}
+				{#if key !== 'Gender' && key !== 'nombre'}
 					<div class="grid grid-cols-2">
 						<p class="py-2 px-0 font-semibold capitalize">{key}:</p>
 						{#if value === null}
@@ -260,10 +268,10 @@
 	</ModalInfo>
 </div>
 
-<h1 class="text-center text-2xl font-bold text-gray-700">Solicitud de Socios</h1>
-<div class="flex items-center justify-between">
+<h1 class="text-center text-2xl font-bold text-gray-700" transition:fade={{ duration: 100 }}>Solicitud de Socios</h1>
+<div class="flex items-center justify-between" transition:fade={{ duration: 100 }}>
 	<input
-		on:change={search}
+		on:keyup={search}
 		bind:value={searchData}
 		type="text"
 		required
@@ -277,7 +285,7 @@
 		bind:this={modalController}
 		on:closeModal={clearData}
 	>
-		<form class="form-control " on:submit|preventDefault={submit}>
+		<form class="form-control" on:submit|preventDefault={submit}>
 			<div class="w-full flex">
 				<div class="w-1/2 mr-2">
 					<label for="name" class="label">
@@ -396,18 +404,10 @@
 		on:message={loaData}
 		on:deleteItem={deleteEmployee}
 		on:editItem={setEdit}
+		on:nextPage={nextPage}
+		on:previusPage={previusPage}
 	/>
 {:else}
 	<Loader />
 {/if}
 
-<div class="mt-4 mr-2 flex justify-end">
-	<div class="btn-group">
-		<button class="btn btn-outline btn-wide" on:click={previusPage}>
-			<i class="fas fa-arrow-left text-lg" />
-		</button>
-		<button class="btn btn-outline btn-wide" on:click={nextPage}>
-			<i class="fas fa-arrow-right text-lg" />
-		</button>
-	</div>
-</div>

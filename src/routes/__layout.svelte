@@ -1,6 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import * as api from '../lib/api';
 	import { user } from '../store/session';
 
 	import '../styles/tailwind-output.css';
@@ -10,7 +11,15 @@
 	onMount(async () => {
 		if (!$user.username) {
 			goto('/login');
+		} else {
+			let res = await api.get('/users/me').then((response) => response.json());
+			console.log(res);
+			if (res.statusCode === 401) {
+				goto('/login');
+				return
+			}
 		}
+
 		loading = true;
 		let route = window.location.pathname;
 		console.log(route);
@@ -22,7 +31,8 @@
 				current = 2;
 				break;
 			case '/request':
-			case 'associates':
+			case '/associates':
+			case '/acounts':
 				current = 3;
 				break;
 			default:
@@ -232,7 +242,7 @@
 						</div>
 					</div>
 				</header>
-				<slot />
+				<slot  />
 			</div>
 		</div>
 	</main>
