@@ -31,6 +31,8 @@
 	let name;
 	let lastname;
 	let birthday;
+	let phone_number;
+	let address;
 	let gender;
 	let identification;
 	let profession;
@@ -174,7 +176,7 @@
 	const loaData = async () => {
 		body = [];
 		for (const data of associateRequests) {
-			body.push([data.id, data.name, data.identification, data.profession]);
+			body.push([data.id, data.name + ' ' + data.lastname, data.identification, data.profession]);
 		}
 		await sleep(200);
 		tableControler.addDataBody(body);
@@ -245,8 +247,6 @@
 		console.log(dataModalInfo);
 		modalInfo.openModal();
 	};
-
-	
 </script>
 
 <div>
@@ -268,7 +268,9 @@
 	</ModalInfo>
 </div>
 
-<h1 class="text-center text-2xl font-bold text-gray-700" transition:fade={{ duration: 100 }}>Solicitud de Socios</h1>
+<h1 class="text-center text-2xl font-bold text-gray-700" transition:fade={{ duration: 100 }}>
+	Solicitud de Socios
+</h1>
 <div class="flex items-center justify-between" transition:fade={{ duration: 100 }}>
 	<input
 		on:keyup={search}
@@ -285,9 +287,9 @@
 		bind:this={modalController}
 		on:closeModal={clearData}
 	>
-		<form class="form-control" on:submit|preventDefault={submit}>
+		<form class="form-control overflow-y-visible" on:submit|preventDefault={submit}>
 			<div class="w-full flex">
-				<div class="w-1/2 mr-2">
+				<div class="w-1/2 mr-2 ">
 					<label for="name" class="label">
 						<span class="label-text">Nombre</span>
 					</label>
@@ -313,6 +315,33 @@
 					/>
 				</div>
 			</div>
+			<div class="w-full flex">
+				<div class="w-1/2 mr-2">
+					<label for="name" class="label">
+						<span class="label-text">Numero de telefono</span>
+					</label>
+					<input
+						bind:value={phone_number}
+						type="text"
+						required
+						placeholder="Telefono"
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
+					/>
+				</div>
+
+				<div class="w-1/2 ml-2">
+					<label for="name" class="label">
+						<span class="label-text">Direccion</span>
+					</label>
+					<input
+						bind:value={address}
+						type="text"
+						required
+						placeholder="Direccion"
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
+					/>
+				</div>
+			</div>
 
 			<div class="w-full flex">
 				<div class="w-1/2 mr-2">
@@ -323,7 +352,7 @@
 						bind:value={identification}
 						type="text"
 						required
-						placeholder=""
+						placeholder="XXX-XXXXX-XXXX"
 						class="input input-primary input-bordered focus:placeholder-primary w-full"
 					/>
 				</div>
@@ -410,4 +439,3 @@
 {:else}
 	<Loader />
 {/if}
-

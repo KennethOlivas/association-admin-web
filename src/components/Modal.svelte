@@ -30,7 +30,7 @@
 >
 <input type="checkbox" bind:checked={modal} id="my-modal" class="modal-toggle" />
 <div class="modal ">
-	<div class="modal-box max-w-lg md:max-w-2xl lg:max-w-3xl overscroll-auto ">
+	<div class="modal-box max-w-lg md:max-w-2xl lg:max-w-3xl">
 		<div class="form-control">
 			<div class="flex justify-between">
 				<p class="text-2xl text-center font-semibold">{tilte}</p>

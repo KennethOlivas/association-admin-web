@@ -9,15 +9,10 @@
 	let loading = false;
 
 	onMount(async () => {
-		if (!$user.username) {
+		let res = await api.get('/users/me').then((response) => response.json());
+		if (res.statusCode === 401) {
 			goto('/login');
-		} else {
-			let res = await api.get('/users/me').then((response) => response.json());
-			console.log(res);
-			if (res.statusCode === 401) {
-				goto('/login');
-				return
-			}
+			return;
 		}
 
 		loading = true;
@@ -34,6 +29,9 @@
 			case '/associates':
 			case '/acounts':
 				current = 3;
+				break;
+			case '/transactions':
+				current = 4;
 				break;
 			default:
 				current = 1;
@@ -85,6 +83,12 @@
 					route: 'acounts'
 				}
 			]
+		},
+		{
+			id: 4,
+			name: 'Transacciones',
+			icon: 'fas fa-hand-holding-usd',
+			route: 'transactions'
 		}
 	];
 
@@ -97,18 +101,18 @@
 </script>
 
 {#if loading}
-	<main class="h-screen overflow-hidden relative ">
+	<main class="h-screen relative ">
 		<div class="flex items-start justify-between shadow-2xl ">
 			<div class="h-screen hidden md:block  relative w-80 bg-base-content">
 				<div class=" h-full ">
-					<div class="flex items-center justify-start pt-6 ml-8">
-						<p class="font-bold text-white  text-xl">Young Ocean</p>
+					<div class="flex items-center justify-start pt-6 ml-4">
+						<p class="font-bold text-white  text-xl">Coperativa Young Ocean</p>
 					</div>
 					<nav class="mt-6">
 						<div>
 							{#each menu as menuItems, i}
 								<div
-									class="my-2 mx-1 hover:bg-primary-focus rounded-box  text-white  cursor-pointer  {menuItems.id ===
+									class="my-2 mx-1 hover:bg-primary-focus rounded-box text-white  cursor-pointer  {menuItems.id ===
 									current
 										? 'bg-primary text-white'
 										: ''}   flex items-center transition-colors duration-200 "
@@ -242,8 +246,11 @@
 						</div>
 					</div>
 				</header>
-				<slot  />
+				<slot />
 			</div>
 		</div>
 	</main>
 {/if}
+
+<style>
+</style>

@@ -46,6 +46,7 @@
 	//busqueda
 	let searchData;
 	let inputSearch;
+	let typeSearch = false;
 	let resultsAssociates = [];
 	let noResult = false;
 
@@ -130,14 +131,27 @@
 
 	const searchAssociate = async () => {
 		let res;
-		try {
-			res = await api
-				.get(`/associates?identification_contains=${inputSearch}`)
-				.then((response) => response.json());
-			resultsAssociates = [...res];
-			resultsAssociates.length === 0 ? (noResult = true) : (noResult = false);
-		} catch (error) {
-			console.log(error);
+
+		if (typeSearch) {
+			try {
+				res = await api
+					.get(`/associates?name_contains=${inputSearch}`)
+					.then((response) => response.json());
+				resultsAssociates = [...res];
+				resultsAssociates.length === 0 ? (noResult = true) : (noResult = false);
+			} catch (error) {
+				console.log(error);
+			}
+		} else {
+			try {
+				res = await api
+					.get(`/associates?identification_contains=${inputSearch}`)
+					.then((response) => response.json());
+				resultsAssociates = [...res];
+				resultsAssociates.length === 0 ? (noResult = true) : (noResult = false);
+			} catch (error) {
+				console.log(error);
+			}
 		}
 	};
 
@@ -157,9 +171,16 @@
 			number,
 			associate: associateId
 		};
+		let newDataAcount;
+		let res;
 		(async () => {
 			try {
 				await api.post(`/associate-accounts`, data);
+				newDataAcount = await api
+					.get(`/associate-accounts?number_contains=${number}`)
+					.then((response) => response.json());
+				let associate_accounts = newDataAcount[0];
+				await putNewAcount(associate_accounts, associateId);
 			} catch (error) {
 				console.log(error);
 			} finally {
@@ -167,11 +188,29 @@
 				await sleep(200);
 			}
 		})();
+
 		modalController2.closeModal();
 		await sleep(600);
 		clearData();
 		loading = true;
 		loaData();
+	};
+
+	const putNewAcount = async (associate_accounts, id) => {
+		let data;
+		try {
+			data = await api.get(`/associates/${id}`).then((response) => response.json());
+		} catch (error) {
+			console.log(error);
+		}
+
+		data.associate_accounts.push(associate_accounts);
+		console.log(data);
+		try {
+			await api.put(`/associates/${id}`, data);
+		} catch (error) {
+			console.log(error);
+		}
 	};
 </script>
 
@@ -222,15 +261,19 @@
 		bind:this={modalController}
 		on:closeModal={clearData}
 	>
-		<div class="relative mt-4">
+		<div class="relative mt-4 flex">
 			<input
 				bind:value={inputSearch}
 				on:keyup={searchAssociate}
 				type="text"
 				required
 				placeholder="Buscar socio"
-				class="w-full pr-16 input input-info input-bordered"
+				class="w-5/6 pr-16 input input-info input-bordered"
 			/>
+			<select bind:value={typeSearch} class="select select-info mx-2">
+				<option value={false}>Cedula</option>
+				<option value={true}>Nombre</option>
+			</select>
 		</div>
 
 		{#if resultsAssociates.length !== 0}
@@ -246,7 +289,7 @@
 					<tbody>
 						{#each resultsAssociates as data}
 							<tr
-								class="hover cursor-pointer rounded-box"
+								class="hover cursor-pointer"
 								transition:fade={{ duration: 400 }}
 								on:click={selectAssociate(data)}
 							>
