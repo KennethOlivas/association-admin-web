@@ -43,14 +43,20 @@
 	};
 </script>
 
-<div class="font-sans">
-	<div class="relative min-h-screen flex flex-col justify-center items-center bg-base-200">
+
+
+<div class="font-sans h-screen">
+	<div class="relative min-h-screen flex flex-col justify-center items-center bg-indigo-100">
+		<div class="w-40 h-40 absolute bg-purple-300  rounded-full top-0  hidden md:block"></div>
+		<div class="w-20 h-40 absolute bg-blue-300  rounded-full bottom-10  transform rotate-45 hidden md:block"></div>
+		<div class="absolute w-60 h-60 rounded-xl bg-indigo-300 -left-16 z-0 transform rotate-45 hidden md:block"></div>
+		<div class="absolute w-48 h-48 rounded-xl bg-indigo-300   right-10 transform rotate-12 hidden md:block"></div>
 		<div class="relative max-w-sm sm:max-w-md md:max-w-lg  mx-8 w-full">
 			<div
 				class="card bg-primary shadow-lg  w-full h-full rounded-3xl absolute  transform -rotate-6"
 			/>
 			<div
-				class="card bg-green-600 shadow-lg  w-full h-full rounded-3xl absolute  transform rotate-6"
+				class="card bg-indigo-600 shadow-lg  w-full h-full rounded-3xl absolute  transform rotate-6"
 			/>
 			<div class="relative w-full rounded-3xl  px-6 py-4 bg-base-200  shadow-md">
 				<label for="" class="block mt-3 text-2xl  text-center font-semibold"> Login </label>
@@ -79,6 +85,8 @@
 				</form>
 			</div>
 		</div>
+		
+
 	</div>
 </div>
 

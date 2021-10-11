@@ -7,7 +7,7 @@
 	import { countryList } from '../../lib/utils';
 	import { sleep } from '../../lib/utils';
 	import ModalInfo from '../../components/ModalInfo.svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 
 	//Variables de las tabla
 	let head = [];
@@ -25,20 +25,22 @@
 	// limite de paginacion
 	const limit = 8;
 
+	let modalAux = true;
+
 	//Controladores del modal de infromacion
 	let modalInfo;
 	let dataModalInfo = [];
 	let idModalInfo;
 
 	//variables del api
-	let name;
-	let lastname;
-	let birthday;
-	let gender;
-	let identification;
-	let profession;
-	let academy_level;
-	let observation;
+	let amount;
+	let associate_accounts;
+	let type;
+	let valance = 0;
+	let number;
+
+	let res = false
+	let titleModalTransction = 'Tipo de transaccion';
 
 	//busqueda
 	let searchData;
@@ -55,16 +57,7 @@
 	});
 
 	const edit = async () => {
-		let data = {
-			name,
-			birthday,
-			lastname,
-			gender,
-			identification,
-			academy_level,
-			observation,
-			profession
-		};
+		let data = {};
 		(async () => {
 			try {
 				await api.put(`/associates/${id}`, data);
@@ -88,7 +81,6 @@
 		} finally {
 			associates = [];
 			associates = [...res];
-			console.log(associates);
 		}
 	};
 
@@ -101,24 +93,8 @@
 	const previusPage = async () => {
 		page > 1 ? page-- : (page = 1);
 
-		console.log(page);
 		await getAssociates();
 		loaData();
-	};
-
-	const setEdit = async (event) => {
-		addOrEdit = false;
-		id = event.detail.id;
-		let data = associates.find((e) => e.id === id);
-		name = data.name;
-		birthday = data.birthday;
-		gender = data.gender;
-		identification = data.identification;
-		lastname = data.lastname;
-		academy_level = data.academy_level;
-		observation = data.observation;
-		profession = data.profession;
-		modalController.openModal();
 	};
 
 	const loaData = async () => {
@@ -131,14 +107,9 @@
 	};
 
 	const clearData = () => {
-		name = '';
-		birthday = '';
-		gender = '';
-		identification = '';
-		profession = '';
-		academy_level = '';
-		lastname = '';
-		addOrEdit = true;
+		titleModalTransction = 'Tipo de transaccion';
+		modalAux = true;
+		valance = 0;
 	};
 
 	const search = async () => {
@@ -149,7 +120,6 @@
 				res = await api
 					.get(`/associates?identification_contains=${searchData}`)
 					.then((response) => response.json());
-				console.log(res);
 			} catch (error) {
 			} finally {
 				associates = [];
@@ -160,7 +130,6 @@
 				res = await api
 					.get(`/associates?name_contains=${searchData}`)
 					.then((response) => response.json());
-				console.log(res);
 			} catch (error) {
 			} finally {
 				associates = [];
@@ -168,7 +137,6 @@
 			}
 		}
 
-		console.log(searchData);
 		loaData();
 	};
 
@@ -179,30 +147,53 @@
 		let data = associates.find((e) => e.id === id);
 		idModalInfo = data.id;
 		dataModalInfo = data;
-		if (dataModalInfo.Associate_accounts > 0) {
-			resultAcount = dataModalInfo.Associate_accounts;
-		}
+		resultAcount = dataModalInfo.associate_accounts;
 
-		console.log(dataModalInfo);
 		modalInfo.openModal();
 	};
 
-	const changeStatus = async (id) => {
-		let data = {
-			status: true
-		};
-		let res;
-		try {
-			res = await api.put(`/associates/${id}`, data).then((response) => response.json());
-			console.log(res);
-		} catch (error) {
-			console.log(error);
-		} finally {
-			await getAssociates();
+	const handleAcount = (acount) => {
+		console.log(acount);
+		number = acount.number;
+		id = acount.id;
+		amount = acount.amount;
+		console.log(id);
+		modalInfo.closeModal();
+		modalController.openModal();
+	};
+
+	const typeTransction = (value) => {
+		type = value;
+		modalAux = false;
+		type ? (titleModalTransction = 'Deposito') : (titleModalTransction = 'retiro ');
+		console.log(modalAux);
+	};
+
+	const submit = async () => {
+		if (type) {
+			amount += valance;
+		} else {
+			amount -= valance;
 		}
 
-		modalInfo.closeModal();
-		loaData();
+		let data = {
+			id,
+			amount
+		};
+		(async () => {
+			try {
+				let response = await api.put(`/associate-accounts/${id}`, data);
+				if(response.ok)
+				res = true
+			} catch (error) {
+			} finally {
+				await getAssociates();
+			}
+			modalController.closeModal();
+		})();
+
+		await sleep(400);
+		
 	};
 </script>
 
@@ -211,28 +202,115 @@
 </svelte:head>
 
 <div>
-	<ModalInfo bind:this={modalInfo} title={dataModalInfo.name + ' ' + dataModalInfo.lastname + "   //  "  + dataModalInfo.identification}>
+	<ModalInfo
+		bind:this={modalInfo}
+		title={dataModalInfo.name +
+			' ' +
+			dataModalInfo.lastname +
+			'   //  ' +
+			dataModalInfo.identification}
+	>
 		<div class="overflow-x-auto mt-4">
 			<table class="table w-full">
 				<thead>
 					<tr>
 						<th>Numero de cuenta</th>
 						<th>Monto</th>
-						<th>Algo mas</th>
+						<th>Fecha de apertura</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each resultAcount as data}
-						<tr class="hover cursor-pointer rounded-box" transition:fade={{ duration: 400 }}>
+						<tr
+							class="hover cursor-pointer rounded-box"
+							transition:fade={{ duration: 400 }}
+							on:click={handleAcount(data)}
+						>
 							<th>{data.number}</th>
 							<td>{data.amount}</td>
-							<td>??</td>
+							<td>{data.created_at}</td>
 						</tr>
 					{/each}
 				</tbody>
 			</table>
 		</div>
 	</ModalInfo>
+</div>
+
+<div>
+	<Modal bind:this={modalController} tilte={titleModalTransction} on:closeModal={clearData}>
+		{#if modalAux}
+			<div class="flex flex-row w-full mt-4" transition:fade={{ duration: 200 }}>
+				<div
+					on:click={() => {
+						typeTransction(false);
+					}}
+					class="grid flex-grow h-40 card  bg-red-400 text-white text-2xl font-semibold 
+				rounded-box place-items-center shadow-sm cursor-pointer hover:bg-red-500 hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+				>
+					Retiro
+				</div>
+				<div class="divider divider-vertical">O</div>
+				<div
+					on:click={() => {
+						typeTransction(true);
+					}}
+					class="grid flex-grow h-40 card bg-green-400 text-white text-2xl font-semibold 
+				rounded-box place-items-center shadow-sm cursor-pointer hover:bg-green-500 hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+				>
+					Deposito
+				</div>
+			</div>
+		{:else}
+			<form class="form-control " on:submit|preventDefault={submit}>
+				<label for="name" class="label">
+					<span class="label-text">Numero de cuenta</span>
+				</label>
+				<input
+					bind:value={number}
+					type="text"
+					disabled
+					required
+					placeholder="Numero de cuenta"
+					class="input input-disabled input-bordered focus:placeholder-primary w-full"
+				/>
+
+				<label for="name" class="label">
+					<span class="label-text capitalize">{titleModalTransction}</span>
+				</label>
+				{#if !type}
+					<input
+						bind:value={valance}
+						type="number"
+						max={amount}
+						min="50"
+						required
+						placeholder="Numero de cuenta"
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
+					/>
+				{:else}
+					<input
+						bind:value={valance}
+						type="number"
+						min="50"
+						required
+						placeholder="Numero de cuenta"
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
+					/>
+				{/if}
+
+				<div class="modal-action">
+					<button class="btn btn-info w-1/2" type="submit">Aceptar</button>
+					<label
+						for="my-modal-2"
+						type="button"
+						class="btn btn-error text-white w-1/2"
+						on:click={clearData}>Cancelar</label
+					>
+				</div>
+			</form>
+		{/if}
+	</Modal>
 </div>
 
 <h1 class="text-center text-2xl font-bold text-gray-700" transition:fade={{ duration: 100 }}>
@@ -266,4 +344,13 @@
 	/>
 {:else}
 	<Loader />
+{/if}
+
+{#if res}
+<div class="alert alert-success fixed bottom-0 right-0 mb-8 mr-2 cursor-pointer" on:click={()=>{res = false}}	transition:fly={{ x: 200, duration: 400 }}>
+	<div class="flex-1">
+		<i class="fas fa-check text-2xl mr-2"></i>
+		<p class="text-xl">Transaccion completada exitosamente</p>	
+	</div>
+</div>
 {/if}

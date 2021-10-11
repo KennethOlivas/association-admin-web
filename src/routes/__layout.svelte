@@ -10,6 +10,10 @@
 
 	onMount(async () => {
 		let res = await api.get('/users/me').then((response) => response.json());
+		if(res.role.id !== 3){
+			menu.splice(1,1);
+		}
+		console.log(res);
 		if (res.statusCode === 401) {
 			goto('/login');
 			return;
@@ -88,8 +92,19 @@
 			id: 4,
 			name: 'Transacciones',
 			icon: 'fas fa-hand-holding-usd',
-			route: 'transactions'
-		}
+			route: '',
+			submenu: [
+				{
+					name: 'Retiros y Depositos',
+					route: 'transactions'
+				},
+				{
+					name: 'Cretido',
+					route: 'credit'
+				}
+			]
+		},
+	
 	];
 
 	let current = 0;
@@ -106,7 +121,7 @@
 			<div class="h-screen hidden md:block  relative w-80 bg-base-content">
 				<div class=" h-full ">
 					<div class="flex items-center justify-start pt-6 ml-4">
-						<p class="font-bold text-white  text-xl">Coperativa Young Ocean</p>
+						<p class="font-bold text-white  text-xl">Cooperativa Young Ocean</p>
 					</div>
 					<nav class="mt-6">
 						<div>
