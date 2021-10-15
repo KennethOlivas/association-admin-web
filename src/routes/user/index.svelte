@@ -54,7 +54,7 @@
 		let res;
 		try {
 			res = await api.get('/users').then((response) => response.json());
-			if ((res.statusCode = 403)) valid = false;
+			if ((res.statusCode === 403)) valid = false;
 			console.log(res);
 		} catch (error) {
 		} finally {

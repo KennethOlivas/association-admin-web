@@ -14,7 +14,7 @@
 	//Variables de las tabla
 	let head = [];
 	let body = [];
-	head = ['id', 'Nombre', 'numero', 'estado'];
+	head = ['id', 'Nombre', 'numero', 'estado', 'tipo'];
 	let tableControler;
 	//Variables
 	let associates = [];
@@ -40,6 +40,7 @@
 	//variables de la API
 	let number;
 	let amount;
+	let dollar = false
 	let associete;
 	let associateId;
 
@@ -78,12 +79,16 @@
 	const loaData = async () => {
 		body = [];
 		for (const data of acounts) {
+			let type 
+			data.dollar ? type = "Dolares" : type = "Cordobas";
 			body.push([
 				data.id,
 				data.associate.name + ' ' + data.associate.lastname,
 				data.number,
-				data.status
+				data.status,
+				type
 			]);
+
 		}
 		await sleep(200);
 		tableControler.addDataBody(body);
@@ -169,6 +174,7 @@
 		let data = {
 			amount,
 			number,
+			dollar,
 			associate: associateId
 		};
 		let newDataAcount;
@@ -350,6 +356,14 @@
 				placeholder=""
 				class="input input-disabled input-bordered focus:placeholder-primary w-full"
 			/>
+
+			<label for="gender" class="label mt-2">
+				<span class="label-text">Tipo de cuenta</span>
+			</label>
+			<select bind:value={dollar} class="select select-bordered select-info w-full" required>
+				<option value={false}>Cordobas</option>
+				<option value={true}>Dolares</option>
+			</select>
 
 			<label for="name" class="label">
 				<span class="label-text">Cantidad</span>

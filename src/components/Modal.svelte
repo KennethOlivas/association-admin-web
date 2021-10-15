@@ -8,6 +8,13 @@
 	export let icon;
 	let modal = false;
 
+	const handleKeydown = (e) => {
+		let code = e.keyCode
+		if (code === 27) {
+			closeModal()
+		}
+	}
+
 	export const openModal = () => {
 		modal = true;
 	};
@@ -20,8 +27,10 @@
 	export const clicked = () => {
 		dispatch('onClick');
 	};
-</script>
 
+
+</script>
+<svelte:window on:keydown={handleKeydown}/>
 <label
 	for="my-modal"
 	on:click={clicked}
@@ -29,7 +38,7 @@
 	><i class="{icon} mr-2 text-lg" />{btnName}</label
 >
 <input type="checkbox" bind:checked={modal} id="my-modal" class="modal-toggle" />
-<div class="modal ">
+<div class="modal">
 	<div class="modal-box max-w-lg md:max-w-2xl lg:max-w-3xl">
 		<div class="form-control">
 			<div class="flex justify-between">

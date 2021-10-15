@@ -227,7 +227,7 @@
 							on:click={handleAcount(data)}
 						>
 							<th>{data.number}</th>
-							<td>{data.amount}</td>
+							<td>{data.dollar ? "$ " : "C$ "} {data.amount}</td>
 							<td>{data.created_at}</td>
 						</tr>
 					{/each}
@@ -240,7 +240,7 @@
 <div>
 	<Modal bind:this={modalController} tilte={titleModalTransction} on:closeModal={clearData}>
 		{#if modalAux}
-			<div class="flex flex-row w-full mt-4" transition:fade={{ duration: 200 }}>
+			<div class="flex flex-row w-full mt-4" in:fade={{ duration: 200 }}>
 				<div
 					on:click={() => {
 						typeTransction(false);

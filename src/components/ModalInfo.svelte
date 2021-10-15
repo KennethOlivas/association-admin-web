@@ -5,7 +5,7 @@
 	const dispatch = createEventDispatcher();
 	export let btnName;
 	export let icon;
-    export let title
+	export let title;
 	let modal = false;
 
 	export const openModal = () => {
@@ -17,8 +17,15 @@
 		dispatch('closeModal');
 	};
 
+	const handleKeydown = (e) => {
+		let code = e.keyCode;
+		if (code === 27) {
+			closeModal();
+		}
+	};
 </script>
 
+<svelte:window on:keydown={handleKeydown} />
 <label
 	for="my-modal-3"
 	class="{btnName ? '' : 'hidden'} btn btn-info hover:bg-blue-600 my-4 mx-4 modal-button"
