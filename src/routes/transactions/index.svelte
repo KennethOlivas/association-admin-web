@@ -1,3 +1,6 @@
+<svelte:head>
+	<title>Transacciones</title>
+</svelte:head>
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';
@@ -39,37 +42,26 @@
 	let valance = 0;
 	let number;
 
-	let res = false
+	let res = false;
 	let titleModalTransction = 'Tipo de transaccion';
 
 	//busqueda
 	let searchData;
+	let autofocusInput
 	let typeSearch = false;
 	let resultAcount = [];
 
 	onMount(async () => {
 		try {
-			await getAssociates();
+			await getTransaction();
 		} catch (error) {
 		} finally {
 			loading = true;
 		}
+		autofocusInput.focus()
 	});
 
-	const edit = async () => {
-		let data = {};
-		(async () => {
-			try {
-				await api.put(`/associates/${id}`, data);
-			} catch (error) {
-			} finally {
-				await getAssociates();
-			}
-			modalController.closeModal();
-		})();
-	};
-
-	const getAssociates = async () => {
+	const getTransaction = async () => {
 		let res;
 		const start = +page === 1 ? 0 : (+page - 1) * 3;
 
@@ -86,14 +78,14 @@
 
 	const nextPage = async () => {
 		associates.length > limit - 1 ? page++ : (page = page);
-		await getAssociates();
+		await getTransaction();
 		loaData();
 	};
 
 	const previusPage = async () => {
 		page > 1 ? page-- : (page = 1);
 
-		await getAssociates();
+		await getTransaction();
 		loaData();
 	};
 
@@ -183,23 +175,17 @@
 		(async () => {
 			try {
 				let response = await api.put(`/associate-accounts/${id}`, data);
-				if(response.ok)
-				res = true
+				if (response.ok) res = true;
 			} catch (error) {
 			} finally {
-				await getAssociates();
+				await getTransaction();
 			}
 			modalController.closeModal();
 		})();
 
 		await sleep(400);
-		
 	};
 </script>
-
-<svelte:head>
-	<title>Socios</title>
-</svelte:head>
 
 <div>
 	<ModalInfo
@@ -227,7 +213,7 @@
 							on:click={handleAcount(data)}
 						>
 							<th>{data.number}</th>
-							<td>{data.dollar ? "$ " : "C$ "} {data.amount}</td>
+							<td>{data.dollar ? '$ ' : 'C$ '} {data.amount}</td>
 							<td>{data.created_at}</td>
 						</tr>
 					{/each}
@@ -322,6 +308,7 @@
 		<option value={true}>Cedula</option>
 	</select>
 	<input
+		bind:this={autofocusInput}
 		on:keyup={search}
 		bind:value={searchData}
 		type="text"
@@ -347,10 +334,16 @@
 {/if}
 
 {#if res}
-<div class="alert alert-success fixed bottom-0 right-0 mb-8 mr-2 cursor-pointer" on:click={()=>{res = false}}	transition:fly={{ x: 200, duration: 400 }}>
-	<div class="flex-1">
-		<i class="fas fa-check text-2xl mr-2"></i>
-		<p class="text-xl">Transaccion completada exitosamente</p>	
+	<div
+		class="alert alert-success fixed bottom-0 right-0 mb-8 mr-2 cursor-pointer"
+		on:click={() => {
+			res = false;
+		}}
+		transition:fly={{ x: 200, duration: 400 }}
+	>
+		<div class="flex-1">
+			<i class="fas fa-check text-2xl mr-2" />
+			<p class="text-xl">Transaccion completada exitosamente</p>
+		</div>
 	</div>
-</div>
 {/if}

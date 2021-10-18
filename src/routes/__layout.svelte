@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import * as api from '../lib/api';
 	import { user } from '../store/session';
+	import { fly } from 'svelte/transition';
 
 	import '../styles/tailwind-output.css';
 
@@ -10,14 +11,14 @@
 
 	onMount(async () => {
 		let res = await api.get('/users/me').then((response) => response.json());
-		if(res.role.id !== 3){
-			menu.splice(1,1);
-		}
-		console.log(res);
 		if (res.statusCode === 401) {
 			goto('/login');
 			return;
 		}
+		if (res.role.id !== 3) {
+			menu.splice(1, 1);
+		}
+		console.log(res);
 
 		loading = true;
 		let route = window.location.pathname;
@@ -35,6 +36,7 @@
 				current = 3;
 				break;
 			case '/transactions':
+			case '/credit':
 				current = 4;
 				break;
 			default:
@@ -103,8 +105,7 @@
 					route: 'credit'
 				}
 			]
-		},
-	
+		}
 	];
 
 	let current = 0;
@@ -116,7 +117,7 @@
 </script>
 
 {#if loading}
-	<main class="h-screen relative ">
+	<main class="h-screen relative" in:fly={{ y: 500 }} out:fly={{ y: -500 }}>
 		<div class="flex items-start justify-between shadow-2xl ">
 			<div class="h-screen hidden md:block  relative w-80 bg-base-content">
 				<div class=" h-full ">

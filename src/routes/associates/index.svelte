@@ -1,3 +1,6 @@
+<svelte:head>
+	<title>Socios</title>
+</svelte:head>
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';
@@ -208,10 +211,6 @@
 		loaData();
 	};
 </script>
-
-<svelte:head>
-	<title>Socios</title>
-</svelte:head>
 
 <div>
 	<ModalInfo bind:this={modalInfo} title="Informacion de socio">

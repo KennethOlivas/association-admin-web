@@ -1,3 +1,7 @@
+<svelte:head>
+	<title>Cuentas</title>
+</svelte:head>
+
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';

@@ -1,3 +1,6 @@
+<svelte:head>
+	<title>Solicitudes de Socios</title>
+</svelte:head>
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';

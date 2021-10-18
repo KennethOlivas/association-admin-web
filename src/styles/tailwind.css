@@ -6,11 +6,11 @@
 	background-image: url('hero.jpg');
 }
 ::-webkit-scrollbar {
-	width: 14px;
-	height: 14px;
+	width: 10px;
+	height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-	background: #7171b0;
+	background: #4545af;
 	border-radius: 30px;
 }
 ::-webkit-scrollbar-thumb:hover {

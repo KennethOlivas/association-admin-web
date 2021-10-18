@@ -1,9 +1,14 @@
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
+
 <script>
 	import { goto } from '$app/navigation';
 	import Modal from '../../components/Modal.svelte';
 	import { urlBase } from '../../lib/api';
 	import { handleResponse } from '../../lib/utils';
 	import { access_token, user } from '../../store/session';
+	import { fly } from 'svelte/transition';
 
 	let username;
 	let password;
@@ -43,7 +48,7 @@
 	};
 </script>
 
-<div class="font-sans h-screen">
+<div class="font-sans h-screen" in:fly={{ y: 500 }} out:fly={{ y: -500 }}>
 	<div class="relative min-h-screen flex flex-col justify-center items-center bg-indigo-100">
 		<div class="w-40 h-40 absolute bg-purple-300  rounded-full top-0 hidden md:block filter blur-sm animate-pulse " />
 		<div
