@@ -4,12 +4,16 @@
 	import * as api from '../lib/api';
 	import { user } from '../store/session';
 	import { fly } from 'svelte/transition';
+	import {access_token} from "../store/session"
 
 	import '../styles/tailwind-output.css';
 
 	let loading = false;
 
 	onMount(async () => {
+		if (!$access_token) {
+			goto('/login');
+		}
 		let res = await api.get('/users/me').then((response) => response.json());
 		if (res.statusCode === 401) {
 			goto('/login');
