@@ -53,7 +53,7 @@
 	let inputSearch;
 	let typeSearch = false;
 	let resultsAssociates = [];
-	let noResult = false;
+	let notResult = false;
 
 	onMount(async () => {
 		try {
@@ -147,7 +147,7 @@
 					.get(`/associates?name_contains=${inputSearch}`)
 					.then((response) => response.json());
 				resultsAssociates = [...res];
-				resultsAssociates.length === 0 ? (noResult = true) : (noResult = false);
+				resultsAssociates.length === 0 ? (notResult = true) : (notResult = false);
 			} catch (error) {
 				console.log(error);
 			}
@@ -157,7 +157,7 @@
 					.get(`/associates?identification_contains=${inputSearch}`)
 					.then((response) => response.json());
 				resultsAssociates = [...res];
-				resultsAssociates.length === 0 ? (noResult = true) : (noResult = false);
+				resultsAssociates.length === 0 ? (notResult = true) : (notResult = false);
 			} catch (error) {
 				console.log(error);
 			}
@@ -313,7 +313,7 @@
 			</div>
 		{/if}
 
-		<div class="alert alert-error mt-4 {noResult ? '' : 'hidden'}">
+		<div class="alert alert-error mt-4 {notResult ? '' : 'hidden'}">
 			<div class="flex-1">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

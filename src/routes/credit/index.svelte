@@ -1,21 +1,19 @@
-<svelte:head>
-	<title>Creditos</title>
-</svelte:head>
 <script>
 	import Table from '../../components/Table.svelte';
 	import Modal from '../../components/Modal.svelte';
 	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
 	import Loader from '../../components/Loader.svelte';
-	import { countryList } from '../../lib/utils';
 	import { sleep } from '../../lib/utils';
 	import ModalInfo from '../../components/ModalInfo.svelte';
+	import Modal2 from '../../components/ModalSearch.svelte';
 	import { fade, fly } from 'svelte/transition';
+	import GuarantorSearch from '../../components/guarantorSearch.svelte';
 
-    	//Variables de las tabla
+	//Variables de las tabla
 	let head = [];
 	let body = [];
-	head = ['id', 'Socio', 'Credito', 'estado'];
+	head = ['id', 'Socio', 'Credito Total', 'Credito restante', 'estado'];
 	let tableControler;
 	//Variables
 	let associates = [];
@@ -24,6 +22,7 @@
 	let addOrEdit = true;
 	$: btnSubmit = addOrEdit ? 'agregar' : 'editar';
 	let modalController;
+	let modalController2;
 	let page = 1;
 	// limite de paginacion
 	const limit = 8;
@@ -40,44 +39,68 @@
 
 	//busqueda
 	let searchData;
-	let autofocusInput
+	let autofocusInput;
 	let typeSearch = false;
 	let resultAcount = [];
+	let notResult = false;
+	let inputSearch;
+	let hasCredit = false;
+	let hasCreditMessage;
+	let associate;
 
 	//variables api
+	let total_amount;
+	let dolar = false;
+	let remaining_amount;
+	let interest_rate;
+	let now = new Date(),
+		month,
+		day,
+		year;
+	let loan_date;
+	let payment_deadline;
+	let dollar;
+	let fee;
+
 	let amount;
-	let limit_date;
 
-    let credits = []
+	let credits = [];
+	let resultsAssociates = [];
 
+	let seachAsociateInCredit;
 
 	onMount(async () => {
 		try {
-			await getCredits();
+			await getCreditsAcounts();
 		} catch (error) {
 		} finally {
 			loading = true;
 		}
+		(month = '' + (now.getMonth() + 1)), (day = '' + now.getDate()), (year = now.getFullYear());
+
+		if (month.length < 2) month = '0' + month;
+		if (day.length < 2) day = '0' + day;
+
+		loan_date = [year, month, day].join('-');
 	});
 
-	const getCredits = async () => {
+	const getCreditsAcounts = async () => {
 		let res;
 		const start = +page === 1 ? 0 : (+page - 1) * 3;
 
 		try {
 			res = await api
-				.get(`/credits?_sort=id:DESC&_limit=${limit}&_start=${start}`)
+				.get(`/associate-credit-accounts?_sort=id:DESC&_limit=${limit}&_start=${start}`)
 				.then((response) => response.json());
-                console.log(res);
+			console.log(res);
 		} catch (error) {
 		} finally {
 			credits = [];
 			credits = [...res];
 		}
-        
 	};
 
-    const nextPage = async () => {
+	const nextPage = async () => {
 		associates.length > limit - 1 ? page++ : (page = page);
 		await getTransaction();
 		loaData();
@@ -93,43 +116,51 @@
 	const loaData = async () => {
 		body = [];
 		for (const data of credits) {
-			body.push([data.id, data.associate.name + " " + data.associate.lastname , data.amount, data.status]);
+			body.push([
+				data.id,
+				data.associate.name + ' ' + data.associate.lastname,
+				data.dollar ? '$ ' : 'C$ ' + data.total_amount,
+				data.dollar ? '$ ' : 'C$ ' + data.remaining_amount,
+				data.status
+			]);
 		}
 		await sleep(200);
 		tableControler.addDataBody(body);
 	};
 
 	const clearData = () => {
-		titleModalTransction = 'Tipo de transaccion';
-		modalAux = true;
-		valance = 0;
+		inputSearch = '';
+		resultsAssociates = [];
+		hasCredit = false;
+		resultsAssociates = [];
+		hasCreditMessage = '';
+		notResult = false;
 	};
 
 	const search = async () => {
 		let res;
-
 		if (typeSearch) {
 			try {
 				res = await api
-					.get(`/associates?identification_contains=${searchData}`)
+					.get(`/associate-credit-accounts?associate.identification_contains=${searchData}`)
 					.then((response) => response.json());
 			} catch (error) {
 			} finally {
-				associates = [];
-				associates = [...res];
+				credits = [];
+				credits = [...res];
 			}
 		} else {
 			try {
 				res = await api
-					.get(`/associates?name_contains=${searchData}`)
+					.get(`/associate-credit-accounts?associate.name_contains=${searchData}`)
 					.then((response) => response.json());
+				console.log(res);
 			} catch (error) {
 			} finally {
-				associates = [];
-				associates = [...res];
+				credits = [];
+				credits = [...res];
 			}
 		}
-
 		loaData();
 	};
 
@@ -141,7 +172,6 @@
 		idModalInfo = data.id;
 		dataModalInfo = data;
 		resultAcount = dataModalInfo.associate_accounts;
-
 		modalInfo.openModal();
 	};
 
@@ -153,13 +183,6 @@
 		console.log(id);
 		modalInfo.closeModal();
 		modalController.openModal();
-	};
-
-	const typeTransction = (value) => {
-		type = value;
-		modalAux = false;
-		type ? (titleModalTransction = 'Deposito') : (titleModalTransction = 'retiro ');
-		console.log(modalAux);
 	};
 
 	const submit = async () => {
@@ -187,9 +210,249 @@
 		await sleep(400);
 	};
 
+	const searchAssociate = async () => {
+		hasCredit = false;
+		let res;
+		if (inputSearch.length === 0) {
+			resultsAssociates = [];
+			return;
+		}
+		if (!typeSearch) {
+			try {
+				res = await api
+					.get(`/associates?name_contains=${inputSearch}`)
+					.then((response) => response.json());
+				resultsAssociates = [...res];
+				resultsAssociates.length === 0 ? (notResult = true) : (notResult = false);
+			} catch (error) {
+				console.log(error);
+			}
+		} else {
+			try {
+				res = await api
+					.get(`/associates?identification_contains=${inputSearch}`)
+					.then((response) => response.json());
+				resultsAssociates = [...res];
+				resultsAssociates.length === 0 ? (notResult = true) : (notResult = false);
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	};
+
+	const selectAssociate = async (data) => {
+		try {
+			res = await api
+				.get(`/associate-credit-accounts?associate.id=${data.id}&status=true`)
+				.then((response) => response.json());
+		} catch (error) {
+		} finally {
+			if (res.length !== 0) {
+				hasCredit = true;
+				hasCreditMessage = `El socio ${data.name} ${data.lastname} ya tiene un credito abierto y activo`;
+				return;
+			}
+			associate = data;
+		}
+		console.log(associate);
+		modalController.closeModal();
+		modalController2.openModal();
+	};
 </script>
 
+<svelte:head>
+	<title>Creditos</title>
+</svelte:head>
 
+<h1 class="text-center text-2xl font-bold text-gray-700" transition:fade={{ duration: 100 }}>
+	Creditos
+</h1>
+<div class="flex items-center justify-between" transition:fade={{ duration: 100 }}>
+	<select bind:value={typeSearch} class="select select-info mx-2">
+		<option value={false}>Nombre</option>
+		<option value={true}>Cedula</option>
+	</select>
+	<input
+		bind:this={autofocusInput}
+		on:keyup={search}
+		bind:value={searchData}
+		type="text"
+		required
+		placeholder="Buscar Socio..."
+		class="input input-primary input-bordered focus:placeholder-primary w-full my-4 mr-4"
+	/>
+
+	<Modal
+		tilte="Credito de Socio"
+		btnName="Crear Credito"
+		icon="fas fa-plus"
+		bind:this={modalController}
+		on:closeModal={clearData}
+	>
+		<div class="relative mt-4 flex">
+			<input
+				bind:value={inputSearch}
+				on:keyup={searchAssociate}
+				type="text"
+				required
+				placeholder="Buscar socio"
+				class="w-5/6 pr-16 input input-info input-bordered"
+			/>
+			<select bind:value={typeSearch} class="select select-info mx-2">
+				<option value={false}>Nombre</option>
+				<option value={true}>Cedula</option>
+			</select>
+		</div>
+
+		{#if resultsAssociates.length !== 0}
+			<div class="overflow-x-auto mt-4">
+				<table class="table w-full">
+					<thead>
+						<tr>
+							<th>Nombre</th>
+							<th>Apellido</th>
+							<th>Identificacion</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each resultsAssociates as data}
+							<tr
+								class="hover cursor-pointer"
+								transition:fade={{ duration: 400 }}
+								on:click={selectAssociate(data)}
+							>
+								<th>{data.name}</th>
+								<td>{data.lastname}</td>
+								<td>{data.identification}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		{/if}
+
+		<div class="alert alert-error mt-4 {notResult ? '' : 'hidden'}">
+			<div class="flex-1">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					class="w-6 h-6 mx-2 stroke-current"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+					/>
+				</svg>
+				<p>Sin resultados</p>
+			</div>
+		</div>
+
+		<div class="alert alert-error mt-4 {hasCredit ? '' : 'hidden'}">
+			<div class="flex-1">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					class="w-6 h-6 mx-2 stroke-current"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+					/>
+				</svg>
+				<p>{hasCreditMessage}</p>
+			</div>
+		</div>
+	</Modal>
+</div>
+
+<div>
+	<Modal2
+		bind:this={modalController2}
+		tilte={`Credito para  ${associate ? associate.name + ' ' + associate.lastname : ''} `}
+	>
+		<form class="form-control " on:submit|preventDefault={submit}>
+			<label for="name" class="label">
+				<span class="label-text">Fecha del Prestamo</span>
+			</label>
+			<input
+				bind:value={loan_date}
+				type="date"
+				required
+				placeholder=""
+				class="input input-primary input-bordered focus:placeholder-primary"
+			/>
+
+			<label for="gender" class="label mt-2">
+				<span class="label-text">Tipo de cuota</span>
+			</label>
+			<select bind:value={fee} class="select select-bordered select-info w-full" required>
+				<option disabled="disabled" value="" selected="selected">Elija...</option>
+				<option value="1">Diario</option>
+				<option value="7">Semanal</option>
+				<option value="15">Quincenal</option>
+				<option value="30">Mensual</option>
+				<option value="90">Trimestral</option>
+				<option value="180">Semestral</option>
+			</select>
+			<div class="flex w-full">
+				<div class="w-1/3">
+					<label for="gender" class="label mt-2">
+						<span class="label-text">Moneda</span>
+					</label>
+					<select bind:value={dollar} class="select select-bordered select-info w-full" required>
+						<option disabled="disabled" value="" selected="selected">Elija...</option>
+						<option value={false}>Cordobas</option>
+						<option value={true}>Dolares</option>
+					</select>
+				</div>
+
+				<div class="w-1/3 mx-2">
+					<label for="name" class="label mt-2">
+						<span class="label-text">Intereses</span>
+					</label>
+					<input
+						bind:value={interest_rate}
+						type="number"
+						min="0.25"
+						required
+						placeholder="%"
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
+					/>
+				</div>
+				<div class="w-1/3 mr-1">
+					<label for="name" class="label mt-2">
+						<span class="label-text">Monto del prestamo</span>
+					</label>
+					<input
+						bind:value={total_amount}
+						type="number"
+						required
+						placeholder=""
+						class="input input-primary input-bordered focus:placeholder-primary w-full"
+					/>
+				</div>
+			</div>
+			<label for="name" class="label mt-2">
+				<span class="label-text">Tiempo límite de pago</span>
+			</label>
+			<input
+				bind:value={payment_deadline}
+				type="number"
+				min="1"
+				required
+				placeholder="Meses"
+				class="input input-primary input-bordered focus:placeholder-primary w-full"
+			/>
+			<div class="divider text-2xl font-bold ">Fiadores</div>
+		</form>
+	</Modal2>
+</div>
 {#if loading}
 	<Table
 		bind:this={tableControler}
@@ -205,4 +468,3 @@
 {:else}
 	<Loader />
 {/if}
-
