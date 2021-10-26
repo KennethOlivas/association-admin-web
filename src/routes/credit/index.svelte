@@ -47,6 +47,7 @@
 	let hasCredit = false;
 	let hasCreditMessage;
 	let associate;
+	let stepTwoCredit = false;
 
 	//variables api
 	let total_amount;
@@ -61,6 +62,7 @@
 	let payment_deadline;
 	let dollar;
 	let fee;
+	let guarnators = []
 
 	let amount;
 
@@ -186,28 +188,8 @@
 	};
 
 	const submit = async () => {
-		if (type) {
-			amount += valance;
-		} else {
-			amount -= valance;
-		}
-
-		let data = {
-			id,
-			amount
-		};
-		(async () => {
-			try {
-				let response = await api.put(`/associate-accounts/${id}`, data);
-				if (response.ok) res = true;
-			} catch (error) {
-			} finally {
-				await getTransaction();
-			}
-			modalController.closeModal();
-		})();
-
-		await sleep(400);
+		stepTwoCredit = true;
+		console.log("submit");
 	};
 
 	const searchAssociate = async () => {
@@ -258,6 +240,12 @@
 		modalController.closeModal();
 		modalController2.openModal();
 	};
+
+	const test = (e) => {
+		guarnators = e.detail.data
+		console.table(guarnators);
+	}
+
 </script>
 
 <svelte:head>
@@ -377,79 +365,98 @@
 		tilte={`Credito para  ${associate ? associate.name + ' ' + associate.lastname : ''} `}
 	>
 		<form class="form-control " on:submit|preventDefault={submit}>
-			<label for="name" class="label">
-				<span class="label-text">Fecha del Prestamo</span>
-			</label>
-			<input
-				bind:value={loan_date}
-				type="date"
-				required
-				placeholder=""
-				class="input input-primary input-bordered focus:placeholder-primary"
-			/>
+			{#if !stepTwoCredit}
+				<label for="name" class="label">
+					<span class="label-text">Fecha del Prestamo</span>
+				</label>
+				<input
+					bind:value={loan_date}
+					type="date"
+					required
+					placeholder=""
+					class="input input-primary input-bordered focus:placeholder-primary"
+				/>
 
-			<label for="gender" class="label mt-2">
-				<span class="label-text">Tipo de cuota</span>
-			</label>
-			<select bind:value={fee} class="select select-bordered select-info w-full" required>
-				<option disabled="disabled" value="" selected="selected">Elija...</option>
-				<option value="1">Diario</option>
-				<option value="7">Semanal</option>
-				<option value="15">Quincenal</option>
-				<option value="30">Mensual</option>
-				<option value="90">Trimestral</option>
-				<option value="180">Semestral</option>
-			</select>
-			<div class="flex w-full">
-				<div class="w-1/3">
-					<label for="gender" class="label mt-2">
-						<span class="label-text">Moneda</span>
-					</label>
-					<select bind:value={dollar} class="select select-bordered select-info w-full" required>
-						<option disabled="disabled" value="" selected="selected">Elija...</option>
-						<option value={false}>Cordobas</option>
-						<option value={true}>Dolares</option>
-					</select>
-				</div>
+				<label for="gender" class="label mt-2">
+					<span class="label-text">Tipo de cuota</span>
+				</label>
+				<select bind:value={fee} class="select select-bordered select-info w-full" required>
+					<option disabled="disabled" value="" selected="selected">Elija...</option>
+					<option value="1">Diario</option>
+					<option value="7">Semanal</option>
+					<option value="15">Quincenal</option>
+					<option value="30">Mensual</option>
+					<option value="90">Trimestral</option>
+					<option value="180">Semestral</option>
+				</select>
+				<div class="flex w-full">
+					<div class="w-1/3">
+						<label for="gender" class="label mt-2">
+							<span class="label-text">Moneda</span>
+						</label>
+						<select bind:value={dollar} class="select select-bordered select-info w-full" required>
+							<option disabled="disabled" value="" selected="selected">Elija...</option>
+							<option value={false}>Cordobas</option>
+							<option value={true}>Dolares</option>
+						</select>
+					</div>
 
-				<div class="w-1/3 mx-2">
-					<label for="name" class="label mt-2">
-						<span class="label-text">Intereses</span>
-					</label>
-					<input
-						bind:value={interest_rate}
-						type="number"
-						min="0.25"
-						required
-						placeholder="%"
-						class="input input-primary input-bordered focus:placeholder-primary w-full"
-					/>
+					<div class="w-1/3 mx-2">
+						<label for="name" class="label mt-2">
+							<span class="label-text">Intereses</span>
+						</label>
+						<input
+							bind:value={interest_rate}
+							type="number"
+							min="1"
+							required
+							placeholder="%"
+							class="input input-primary input-bordered focus:placeholder-primary w-full"
+						/>
+					</div>
+					<div class="w-1/3 mr-1">
+						<label for="name" class="label mt-2">
+							<span class="label-text">Monto del prestamo</span>
+						</label>
+						<input
+							bind:value={total_amount}
+							type="number"
+							required
+							placeholder=""
+							class="input input-primary input-bordered focus:placeholder-primary w-full"
+						/>
+					</div>
 				</div>
-				<div class="w-1/3 mr-1">
-					<label for="name" class="label mt-2">
-						<span class="label-text">Monto del prestamo</span>
-					</label>
-					<input
-						bind:value={total_amount}
-						type="number"
-						required
-						placeholder=""
-						class="input input-primary input-bordered focus:placeholder-primary w-full"
-					/>
+				<label for="name" class="label mt-2">
+					<span class="label-text">Tiempo límite de pago</span>
+				</label>
+				<input
+					bind:value={payment_deadline}
+					type="number"
+					min="1"
+					required
+					placeholder="Meses"
+					class="input input-primary input-bordered focus:placeholder-primary w-full"
+				/>
+				<div class="flex justify-end">
+					<button type="submit"
+						class="btn btn-accent mt-4 w-1/2">Siguiente</button
+					>
 				</div>
-			</div>
-			<label for="name" class="label mt-2">
-				<span class="label-text">Tiempo límite de pago</span>
-			</label>
-			<input
-				bind:value={payment_deadline}
-				type="number"
-				min="1"
-				required
-				placeholder="Meses"
-				class="input input-primary input-bordered focus:placeholder-primary w-full"
-			/>
-			<div class="divider text-2xl font-bold ">Fiadores</div>
+			{:else}
+				<GuarantorSearch associate={associate} on:exportData={test} />
+				<div class="modal-action">
+					<label
+						for="my-modal-2"
+						type="button"
+						on:click={() => {
+							stepTwoCredit = false;
+						}}
+						class="btn text-white w-1/2">Atras</label
+					>
+					<button class="btn btn-info w-1/2" type="submit">{btnSubmit}</button>
+				</div>
+			{/if}
 		</form>
 	</Modal2>
 </div>
