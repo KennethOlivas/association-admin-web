@@ -7,10 +7,10 @@
 	import * as api from '../../lib/api';
 	import { onMount } from 'svelte';
 	import Loader from '../../components/Loader.svelte';
-	import { countryList } from '../../lib/utils';
 	import { sleep } from '../../lib/utils';
 	import ModalInfo from '../../components/ModalInfo.svelte';
 	import { fade, fly } from 'svelte/transition';
+	import Transacctions from '../../components/Transacctions.svelte';
 
 	//Variables de las tabla
 	let head = [];
@@ -29,6 +29,8 @@
 	const limit = 8;
 
 	let modalAux = true;
+
+	let transaccion = false
 
 	//Controladores del modal de infromacion
 	let modalInfo;
@@ -172,10 +174,19 @@
 			id,
 			amount
 		};
+
+		let dataTransaction = {
+			associate_account: id,
+			amount: valance,
+			type,
+			valance: amount
+		};
 		(async () => {
 			try {
+				let responseTransaccion = await api.post(`/transactions`, dataTransaction);
+				
 				let response = await api.put(`/associate-accounts/${id}`, data);
-				if (response.ok) res = true;
+				if (response.ok && responseTransaccion.ok) res = true;
 			} catch (error) {
 			} finally {
 				await getTransaction();
@@ -189,6 +200,7 @@
 
 <div>
 	<ModalInfo
+		on:closeModal={() => transaccion = false}
 		bind:this={modalInfo}
 		title={dataModalInfo.name +
 			' ' +
@@ -196,30 +208,38 @@
 			'   //  ' +
 			dataModalInfo.identification}
 	>
-		<div class="overflow-x-auto mt-4">
-			<table class="table w-full">
-				<thead>
-					<tr>
-						<th>Numero de cuenta</th>
-						<th>Monto</th>
-						<th>Fecha de apertura</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each resultAcount as data}
-						<tr
-							class="hover cursor-pointer rounded-box"
-							transition:fade={{ duration: 400 }}
-							on:click={handleAcount(data)}
-						>
-							<th>{data.number}</th>
-							<td>{data.dollar ? '$ ' : 'C$ '} {data.amount}</td>
-							<td>{data.created_at}</td>
+		{#if !transaccion}
+			<div class="overflow-x-auto mt-4">
+				<table class="table w-full">
+					<thead>
+						<tr>
+							<th>Numero de cuenta</th>
+							<th>Tipo</th>
+							<th>Monto</th>
+							<th>Fecha de apertura</th>
 						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
+					</thead>
+					<tbody>
+						{#each resultAcount as data}
+							<tr
+								class="hover cursor-pointer rounded-box"
+								in:fade={{ duration: 400 }}
+								on:click={handleAcount(data)}
+							>
+								<th>{data.number}</th>
+								<th>{data.dollar ? 'Dolares' : 'Cordobas'}</th>
+								<td>{data.dollar ? '$ ' : 'C$ '} {data.amount}</td>
+								<td>{data.created_at}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+				<button class="btn btn-block mt-8" on:click={() => transaccion = true}>Ver transacciones</button>
+			</div>
+
+		{:else}
+			<Transacctions id={idModalInfo}/>
+		{/if}
 	</ModalInfo>
 </div>
 
