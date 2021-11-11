@@ -9,7 +9,20 @@
 	import Modal2 from '../../components/ModalSearch.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import GuarantorSearch from '../../components/guarantorSearch.svelte';
+	import ActiveCredit from '../../components/ActiveCredit.svelte';
+	import PayCredit from '../../components/PayCredit.svelte';
+	import PaymentPlan from '../../components/PaymentPlan.svelte';
+	import PaymentCreditHistory from '../../components/PaymentCreditHistory.svelte';
 
+	const optionComponent = [
+		{ component: ActiveCredit },
+		{ component: PayCredit },
+		{ component: PaymentCreditHistory },
+		{ component: PaymentPlan }
+	];
+
+	let selectedComponent = optionComponent[0];
+	let props;
 	//Variables de las tabla
 	let head = [];
 	let body = [];
@@ -60,9 +73,11 @@
 		year;
 	let loan_date;
 	let payment_deadline;
-	let dollar;
+	let type;
 	let fee;
-	let guarnators = []
+	let guarnators = [];
+	let associateId;
+	let selectedAssociate;
 
 	let amount;
 
@@ -94,7 +109,6 @@
 			res = await api
 				.get(`/associate-credit-accounts?_sort=id:DESC&_limit=${limit}&_start=${start}`)
 				.then((response) => response.json());
-			console.log(res);
 		} catch (error) {
 		} finally {
 			credits = [];
@@ -104,14 +118,14 @@
 
 	const nextPage = async () => {
 		associates.length > limit - 1 ? page++ : (page = page);
-		await getTransaction();
+		await getCreditsAcounts();
 		loaData();
 	};
 
 	const previusPage = async () => {
 		page > 1 ? page-- : (page = 1);
 
-		await getTransaction();
+		await getCreditsAcounts();
 		loaData();
 	};
 
@@ -127,7 +141,6 @@
 			]);
 		}
 		await sleep(200);
-		tableControler.addDataBody(body);
 	};
 
 	const clearData = () => {
@@ -137,6 +150,18 @@
 		resultsAssociates = [];
 		hasCreditMessage = '';
 		notResult = false;
+		total_amount = '';
+		dolar = false;
+		remaining_amount = '';
+		interest_rate = '';
+		(now = new Date()), month, day, year;
+		loan_date = '';
+		payment_deadline = '';
+		type = false;
+		fee = '';
+		guarnators = [];
+		associateId = '';
+		amount = '';
 	};
 
 	const search = async () => {
@@ -156,7 +181,6 @@
 				res = await api
 					.get(`/associate-credit-accounts?associate.name_contains=${searchData}`)
 					.then((response) => response.json());
-				console.log(res);
 			} catch (error) {
 			} finally {
 				credits = [];
@@ -167,29 +191,112 @@
 	};
 
 	const toOpenModalInfo = (e) => {
-		dataModalInfo = [];
-		resultAcount = [];
 		let id = e.detail.id;
-		let data = associates.find((e) => e.id === id);
-		idModalInfo = data.id;
-		dataModalInfo = data;
-		resultAcount = dataModalInfo.associate_accounts;
+		selectedAssociate = credits.find((e) => e.id === id);
 		modalInfo.openModal();
 	};
 
 	const handleAcount = (acount) => {
-		console.log(acount);
 		number = acount.number;
 		id = acount.id;
 		amount = acount.amount;
-		console.log(id);
 		modalInfo.closeModal();
 		modalController.openModal();
 	};
 
 	const submit = async () => {
-		stepTwoCredit = true;
-		console.log("submit");
+		if (!stepTwoCredit) {
+			stepTwoCredit = true;
+			return;
+		}
+
+		let guarnatorsId = [];
+		for (const iterator of guarnators) {
+			guarnatorsId.push(iterator.id);
+		}
+		let creditId;
+		let data = {
+			associate: associate.id,
+			type,
+			total_amount,
+			guarnators: guarnatorsId,
+			remaining_amount: total_amount,
+			interest_rate,
+			loan_date,
+			payment_deadline,
+			fee
+		};
+
+		(async () => {
+			try {
+				await api.post(`/associate-credit-accounts`, data);
+				let getCreditsAcount = await api
+					.get(`/associate-credit-accounts?associate.id=${associate.id}&status=true`)
+					.then((response) => response.json());
+				creditId = getCreditsAcount[0].id;
+				await setUpCreditTransactions(creditId);
+			} catch (error) {
+				console.log(error);
+			} finally {
+				modalController2.closeModal();
+				clearData();
+				await getCreditsAcounts();
+				loaData();
+			}
+		})();
+	};
+
+	const setUpCreditTransactions = async (associate_credit_account) => {
+		let quantityQuote = (payment_deadline * 30) / fee;
+		let principal = (total_amount / quantityQuote).toFixed(2);
+		principal = parseFloat(principal);
+		let quote;
+		let interest;
+		let total;
+		let balance;
+		let limit_date = new Date(loan_date);
+
+		for (let i = 0; i < quantityQuote; i++) {
+			quote = i + 1;
+			limit_date.addDays(fee);
+			if (i === 0) {
+				interest = ((total_amount * (interest_rate / 100)) / 12).toFixed(2);
+				interest = parseFloat(interest);
+				total = principal + interest;
+				balance = total_amount - principal;
+				balance = parseFloat(balance);
+			}
+			if (i >= 1) {
+				interest = ((balance * (interest_rate / 100)) / 12).toFixed(2);
+				interest = parseFloat(interest);
+				total = principal + interest;
+				balance = (balance - principal).toFixed(2);
+				balance = parseFloat(balance);
+				if (balance < 0) {
+					balance = 0;
+				}
+			}
+
+			let data = {
+				associate_credit_account,
+				limit_date,
+				quote,
+				principal,
+				interest,
+				total,
+				remaining_balance: balance
+			};
+			try {
+				await api.post(`/credits`, data);
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	};
+
+	Date.prototype.addDays = function (days) {
+		this.setDate(this.getDate() + parseInt(days));
+		return this;
 	};
 
 	const searchAssociate = async () => {
@@ -236,21 +343,67 @@
 			}
 			associate = data;
 		}
-		console.log(associate);
 		modalController.closeModal();
 		modalController2.openModal();
 	};
 
-	const test = (e) => {
-		guarnators = e.detail.data
-		console.table(guarnators);
-	}
-
+	const getGuaranator = (e) => {
+		guarnators = e.detail.data;
+	};
 </script>
 
 <svelte:head>
 	<title>Creditos</title>
 </svelte:head>
+
+<div>
+	<ModalInfo bind:this={modalInfo} title="Informacion del credito">
+		<ul class="menu items-stretch  shadow-lg bg-base-100 horizontal rounded-box  mt-4">
+			<li>
+				<button
+					class="btn btn-ghost capitalize rounded-none"
+					on:click={() => {
+						selectedComponent = optionComponent[0];
+						props = { associate: selectedAssociate };
+					}}
+					><i class="fas fa-file-invoice mr-2 text-xl" /> <p class="hidden md:inline">Credito Activo</p>
+				</button>
+			</li>
+			<li>
+				<button
+					class="btn btn-ghost capitalize rounded-none"
+					on:click={() => {
+						selectedComponent = optionComponent[1];
+						props = { associate: selectedAssociate };
+					}}
+					><i class="fas fa-money-bill-wave mr-2 text-xl" /> <p class="hidden md:inline">Pagar Cuota</p>
+				</button>
+			</li>
+			<li>
+				<button
+					class="btn btn-ghost capitalize rounded-none"
+					on:click={() => {
+						selectedComponent = optionComponent[2];
+						props = { associate: selectedAssociate };
+					}}
+					><i class="fas fa-book mr-2 text-xl" /> <p class="hidden md:inline">Historial</p>
+				</button>
+			</li>
+			<li>
+				<button
+					class="btn btn-ghost capitalize rounded-none"
+					on:click={() => {
+						selectedComponent = optionComponent[3];
+						props = { associate: selectedAssociate };
+					}}
+					><i class="fab fa-slideshare mr-2 text-xl" /> <p class="hidden md:inline">Plan de pago</p>
+				</button>
+			</li>
+		</ul>
+
+		<svelte:component this={selectedComponent.component} {...props} />
+	</ModalInfo>
+</div>
 
 <h1 class="text-center text-2xl font-bold text-gray-700" transition:fade={{ duration: 100 }}>
 	Creditos
@@ -394,7 +547,7 @@
 						<label for="gender" class="label mt-2">
 							<span class="label-text">Moneda</span>
 						</label>
-						<select bind:value={dollar} class="select select-bordered select-info w-full" required>
+						<select bind:value={type} class="select select-bordered select-info w-full" required>
 							<option disabled="disabled" value="" selected="selected">Elija...</option>
 							<option value={false}>Cordobas</option>
 							<option value={true}>Dolares</option>
@@ -408,7 +561,7 @@
 						<input
 							bind:value={interest_rate}
 							type="number"
-							min="1"
+							step="0.25"
 							required
 							placeholder="%"
 							class="input input-primary input-bordered focus:placeholder-primary w-full"
@@ -422,6 +575,7 @@
 							bind:value={total_amount}
 							type="number"
 							required
+							step="0.01"
 							placeholder=""
 							class="input input-primary input-bordered focus:placeholder-primary w-full"
 						/>
@@ -439,12 +593,10 @@
 					class="input input-primary input-bordered focus:placeholder-primary w-full"
 				/>
 				<div class="flex justify-end">
-					<button type="submit"
-						class="btn btn-accent mt-4 w-1/2">Siguiente</button
-					>
+					<button type="submit" class="btn btn-accent mt-4 w-1/2">Siguiente</button>
 				</div>
 			{:else}
-				<GuarantorSearch associate={associate} on:exportData={test} />
+				<GuarantorSearch {associate} on:exportData={getGuaranator} />
 				<div class="modal-action">
 					<label
 						for="my-modal-2"
@@ -464,6 +616,7 @@
 	<Table
 		bind:this={tableControler}
 		{head}
+		{body}
 		ifFalse="No Activo"
 		ifTrue="Activo"
 		hiddenButton={true}
