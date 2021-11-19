@@ -76,8 +76,11 @@
 	let type;
 	let fee;
 	let guarnators = [];
+<<<<<<< Updated upstream
 	let associateId;
 	let selectedAssociate;
+=======
+>>>>>>> Stashed changes
 
 	let amount;
 
@@ -205,6 +208,7 @@
 	};
 
 	const submit = async () => {
+<<<<<<< Updated upstream
 		if (!stepTwoCredit) {
 			stepTwoCredit = true;
 			return;
@@ -297,6 +301,10 @@
 	Date.prototype.addDays = function (days) {
 		this.setDate(this.getDate() + parseInt(days));
 		return this;
+=======
+		stepTwoCredit = true;
+		console.log('submit');
+>>>>>>> Stashed changes
 	};
 
 	const searchAssociate = async () => {
@@ -347,9 +355,44 @@
 		modalController2.openModal();
 	};
 
+<<<<<<< Updated upstream
 	const getGuaranator = (e) => {
 		guarnators = e.detail.data;
 	};
+=======
+	const test = (e) => {
+		guarnators = e.detail.data;
+		console.table(guarnators);
+	};
+
+	const paymentTable = () => {
+		let cuoteQuantityForMonth;
+		let cuoteQuantity;
+		fee < 30
+			? (cuoteQuantityForMonth = 30 / fee)
+			: (cuoteQuantityForMonth = payment_deadline * fee);
+		cuoteQuantity = cuoteQuantityForMonth / payment_deadline;
+		let principal = total_amount / cuoteQuantity;
+		let interest = (total_amount * (interest_rate / 100)) / cuoteQuantityForMonth;
+		let totalPayment = principal + interest;
+
+		let cuoteQuantitys = [];
+
+		for (let index = 0; index < cuoteQuantity; index++) {
+			cuoteQuantitys.push(index + 1);
+		}
+		let date = new Date();
+		console.log(fee,date);
+		date = sumarDias(date, fee);
+
+		console.log(date);
+	};
+
+	function sumarDias(fecha, dias) {
+		fecha.setDate(fecha.getDate() + dias);
+		return fecha;
+	}
+>>>>>>> Stashed changes
 </script>
 
 <svelte:head>
@@ -596,7 +639,11 @@
 					<button type="submit" class="btn btn-accent mt-4 w-1/2">Siguiente</button>
 				</div>
 			{:else}
+<<<<<<< Updated upstream
 				<GuarantorSearch {associate} on:exportData={getGuaranator} />
+=======
+				<GuarantorSearch {associate} on:exportData={test} />
+>>>>>>> Stashed changes
 				<div class="modal-action">
 					<label
 						for="my-modal-2"
@@ -606,7 +653,9 @@
 						}}
 						class="btn text-white w-1/2">Atras</label
 					>
-					<button class="btn btn-info w-1/2" type="submit">{btnSubmit}</button>
+					<button class="btn btn-info w-1/2" type="button" on:click={paymentTable}
+						>{btnSubmit}</button
+					>
 				</div>
 			{/if}
 		</form>

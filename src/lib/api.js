@@ -3,9 +3,14 @@ import {access_token} from '../store/session'
 import {newAccessToken} from "./utils";
 
 //API
+<<<<<<< Updated upstream
 //export const urlBase = "http://localhost:1337";
 //export const urlBase = "http://192.168.216.200:1337";
 export const urlBase = "https://young-ocean-73880.herokuapp.com";
+=======
+export const urlBase = "http://localhost:1337";
+//export const urlBase = "https://young-ocean-73880.herokuapp.com";
+>>>>>>> Stashed changes
 
 export const get = (url) => {
     const urlComplete = urlBase + url;
