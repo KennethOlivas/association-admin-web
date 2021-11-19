@@ -94,8 +94,6 @@
 			]);
 
 		}
-		await sleep(200);
-		tableControler.addDataBody(body);
 	};
 
 	const generateNumberAcount = () => {
@@ -182,7 +180,6 @@
 			associate: associateId
 		};
 		let newDataAcount;
-		let res;
 		(async () => {
 			try {
 				await api.post(`/associate-accounts`, data);
@@ -195,12 +192,10 @@
 				console.log(error);
 			} finally {
 				await getAcounts();
-				await sleep(200);
 			}
 		})();
-
 		modalController2.closeModal();
-		await sleep(600);
+		await sleep(500);
 		clearData();
 		loading = true;
 		loaData();
@@ -396,6 +391,7 @@
 	<Table
 		bind:this={tableControler}
 		{head}
+		body={body}
 		on:handleTable={toOpenModalInfo}
 		ifFalse="Desactivada"
 		ifTrue="Activo"

@@ -195,6 +195,9 @@
 		})();
 
 		await sleep(400);
+		setTimeout(() => {
+			res = false
+		}, 7000);
 	};
 </script>
 
@@ -355,7 +358,7 @@
 
 {#if res}
 	<div
-		class="alert alert-success fixed bottom-0 right-0 mb-8 mr-2 cursor-pointer"
+		class="alert alert-success fixed bottom-0 right-0 mb-4 mr-2 cursor-pointer"
 		on:click={() => {
 			res = false;
 		}}
@@ -365,5 +368,6 @@
 			<i class="fas fa-check text-2xl mr-2" />
 			<p class="text-xl">Transaccion completada exitosamente</p>
 		</div>
+		
 	</div>
 {/if}
