@@ -9,11 +9,11 @@
 	let modal = false;
 
 	const handleKeydown = (e) => {
-		let code = e.keyCode
+		let code = e.keyCode;
 		if (code === 27) {
-			closeModal()
+			closeModal();
 		}
-	}
+	};
 
 	export const openModal = () => {
 		modal = true;
@@ -27,14 +27,15 @@
 	export const clicked = () => {
 		dispatch('onClick');
 	};
-
-
 </script>
-<svelte:window on:keydown={handleKeydown}/>
+
+<svelte:window on:keydown={handleKeydown} />
 <label
 	for="my-modal"
 	on:click={clicked}
-	class="{btnName ? '' : 'hidden'} btn btn-info hover:bg-blue-600 my-4 mx-4 modal-button"
+	class="{btnName
+		? ''
+		: 'hidden'} btn btn-info hover:bg-blue-600 my-4 mx-4 modal-button shadow-button"
 	><i class="{icon} mr-2 text-lg" />{btnName}</label
 >
 <input type="checkbox" bind:checked={modal} id="my-modal" class="modal-toggle" />
@@ -66,3 +67,5 @@
 		</div>
 	</div>
 </div>
+
+
