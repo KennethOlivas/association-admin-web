@@ -10,56 +10,6 @@
 
 	let excel = XLSX.utils.book_new();
 
-	const exportExcel = async () => {
-		let creditsTransactions;
-
-
-        try {
-            creditsTransactions = await api
-				.get(`/credits?associate_credit_account.id_contains=${associate.id}&_sort=quote:ASC`)
-				.then((response) => response.json());
-        } catch (error) {
-            
-        }
-		excel.Props = {
-			Title: 'Test',
-			Subject: 'Plan de pago',
-			Author: 'Coperativa',
-			CreatedDate: new Date(2021, 12, 19)
-		};
-
-		excel.SheetNames.push('Plan de pago');
-		let head = [
-			['Quota', 'Principal', 'interes', 'total', 'restante', 'Fecha de pago quota']
-		];
-
-		for (const data of creditsTransactions) {
-			let array = [];
-			array.push(data.quote);
-			array.push(data.principal);
-			array.push(data.interest);
-			array.push(data.total);
-			array.push(data.remaining_balance);
-			array.push(data.limit_date);
-			head.push(array);
-		}
-
-		let ws = XLSX.utils.aoa_to_sheet(head);
-
-		excel.Sheets['Plan de pago'] = ws;
-
-		let wbout = XLSX.write(excel, { bookType: 'xlsx', type: 'binary' });
-
-		function s2ab(s) {
-			var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-			var view = new Uint8Array(buf); //create uint8array as viewer
-			for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff; //convert to octet
-			return buf;
-		}
-
-		saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'Plan de.xlsx');
-	};
-
 	let page = 1;
 	// limite de paginacion
 	const limit = 12;
@@ -97,13 +47,57 @@
 	const nextPage = async () => {
 		creditsTransactions.length > limit - 1 ? page++ : (page = page);
 		await getCreditTransactions();
-		loaData();
 	};
 
 	const previusPage = async () => {
 		page > 1 ? page-- : (page = 1);
 
 		await getCreditTransactions();
+	};
+
+	const exportExcel = async () => {
+		let creditsTransactions;
+
+		try {
+			creditsTransactions = await api
+				.get(`/credits?associate_credit_account.id_contains=${associate.id}&_sort=quote:ASC`)
+				.then((response) => response.json());
+		} catch (error) {}
+		excel.Props = {
+			Title: 'Test',
+			Subject: 'Plan de pago',
+			Author: 'Coperativa',
+			CreatedDate: new Date(2021, 12, 19)
+		};
+
+		excel.SheetNames.push('Plan de pago');
+		let head = [['Quota', 'Principal', 'interes', 'total', 'restante', 'Fecha de pago quota']];
+
+		for (const data of creditsTransactions) {
+			let array = [];
+			array.push(data.quote);
+			array.push(data.principal);
+			array.push(data.interest);
+			array.push(data.total);
+			array.push(data.remaining_balance);
+			array.push(data.limit_date);
+			head.push(array);
+		}
+
+		let ws = XLSX.utils.aoa_to_sheet(head);
+
+		excel.Sheets['Plan de pago'] = ws;
+
+		let wbout = XLSX.write(excel, { bookType: 'xlsx', type: 'binary' });
+
+		function s2ab(s) {
+			var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+			var view = new Uint8Array(buf); //create uint8array as viewer
+			for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff; //convert to octet
+			return buf;
+		}
+
+		saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'Plan de.xlsx');
 	};
 </script>
 
@@ -118,12 +112,12 @@
 		<table class="table w-full table-compact">
 			<thead>
 				<tr>
-					<th>Quota</th>
+					<th>Cuota</th>
 					<th>principal</th>
 					<th>interes</th>
 					<th>total</th>
-					<th>restante</th>
-					<th>estado</th>
+					<th>Saldo</th>
+					
 					<th>Fecha de pago quota</th>
 				</tr>
 			</thead>
@@ -135,7 +129,6 @@
 						<td>{associate.dolar ? '$ ' : 'C$ '} {data.interest}</td>
 						<td>{associate.dolar ? '$ ' : 'C$ '} {data.total}</td>
 						<td>{associate.dolar ? '$ ' : 'C$ '} {data.remaining_balance}</td>
-						<td>{associate.status ? 'Pagado' : 'Sin pagar'}</td>
 						<td>{data.limit_date}</td>
 					</tr>
 				{/each}
