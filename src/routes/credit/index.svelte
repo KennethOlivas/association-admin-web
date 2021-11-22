@@ -76,11 +76,8 @@
 	let type;
 	let fee;
 	let guarnators = [];
-<<<<<<< Updated upstream
 	let associateId;
 	let selectedAssociate;
-=======
->>>>>>> Stashed changes
 
 	let amount;
 
@@ -208,7 +205,6 @@
 	};
 
 	const submit = async () => {
-<<<<<<< Updated upstream
 		if (!stepTwoCredit) {
 			stepTwoCredit = true;
 			return;
@@ -301,10 +297,6 @@
 	Date.prototype.addDays = function (days) {
 		this.setDate(this.getDate() + parseInt(days));
 		return this;
-=======
-		stepTwoCredit = true;
-		console.log('submit');
->>>>>>> Stashed changes
 	};
 
 	const searchAssociate = async () => {
@@ -355,11 +347,6 @@
 		modalController2.openModal();
 	};
 
-<<<<<<< Updated upstream
-	const getGuaranator = (e) => {
-		guarnators = e.detail.data;
-	};
-=======
 	const test = (e) => {
 		guarnators = e.detail.data;
 		console.table(guarnators);
@@ -392,7 +379,6 @@
 		fecha.setDate(fecha.getDate() + dias);
 		return fecha;
 	}
->>>>>>> Stashed changes
 </script>
 
 <svelte:head>
@@ -639,11 +625,7 @@
 					<button type="submit" class="btn btn-accent mt-4 w-1/2">Siguiente</button>
 				</div>
 			{:else}
-<<<<<<< Updated upstream
-				<GuarantorSearch {associate} on:exportData={getGuaranator} />
-=======
 				<GuarantorSearch {associate} on:exportData={test} />
->>>>>>> Stashed changes
 				<div class="modal-action">
 					<label
 						for="my-modal-2"

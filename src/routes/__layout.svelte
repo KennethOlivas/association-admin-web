@@ -109,7 +109,13 @@
 					route: 'credit'
 				}
 			]
-		}
+		},
+		{
+			id: 1,
+			name: 'Cheques',
+			icon: 'fas fa-money-check',
+			route: '/check'
+		},
 	];
 
 	let current = 0;
