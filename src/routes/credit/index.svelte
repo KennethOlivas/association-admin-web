@@ -21,7 +21,7 @@
 		{ component: PaymentPlan }
 	];
 
-	let selectedComponent = optionComponent[0];
+	let selectedComponent = optionComponent[1];
 	let props;
 	//Variables de las tabla
 	let head = [];
@@ -194,6 +194,8 @@
 		let id = e.detail.id;
 		selectedAssociate = credits.find((e) => e.id === id);
 		modalInfo.openModal();
+		selectedComponent = optionComponent[0];
+		props = { associate: selectedAssociate };
 	};
 
 	const handleAcount = (acount) => {
@@ -369,7 +371,7 @@
 			cuoteQuantitys.push(index + 1);
 		}
 		let date = new Date();
-		console.log(fee,date);
+		console.log(fee, date);
 		date = sumarDias(date, fee);
 
 		console.log(date);
@@ -387,49 +389,56 @@
 
 <div>
 	<ModalInfo bind:this={modalInfo} title="Informacion del credito">
-		<ul class="menu items-stretch  shadow-lg bg-base-100 horizontal rounded-box  mt-4">
-			<li>
-				<button
-					class="btn btn-ghost capitalize rounded-none"
-					on:click={() => {
-						selectedComponent = optionComponent[0];
-						props = { associate: selectedAssociate };
-					}}
-					><i class="fas fa-file-invoice mr-2 text-xl" /> <p class="hidden md:inline">Credito Activo</p>
-				</button>
-			</li>
-			<li>
-				<button
-					class="btn btn-ghost capitalize rounded-none"
-					on:click={() => {
-						selectedComponent = optionComponent[1];
-						props = { associate: selectedAssociate };
-					}}
-					><i class="fas fa-money-bill-wave mr-2 text-xl" /> <p class="hidden md:inline">Pagar Cuota</p>
-				</button>
-			</li>
-			<li>
-				<button
-					class="btn btn-ghost capitalize rounded-none"
-					on:click={() => {
-						selectedComponent = optionComponent[2];
-						props = { associate: selectedAssociate };
-					}}
-					><i class="fas fa-book mr-2 text-xl" /> <p class="hidden md:inline">Historial</p>
-				</button>
-			</li>
-			<li>
-				<button
-					class="btn btn-ghost capitalize rounded-none"
-					on:click={() => {
-						selectedComponent = optionComponent[3];
-						props = { associate: selectedAssociate };
-					}}
-					><i class="fab fa-slideshare mr-2 text-xl" /> <p class="hidden md:inline">Plan de pago</p>
-				</button>
-			</li>
-		</ul>
-
+		<div class="flex justify-center">
+			<ul
+				class="menu items-stretch justify-around shadow-lg bg-base-100 horizontal rounded-box mt-4"
+			>
+				<li>
+					<button
+						class="btn btn-ghost capitalize rounded-none"
+						on:click={() => {
+							selectedComponent = optionComponent[0];
+							props = { associate: selectedAssociate };
+						}}
+						><i class="fas fa-file-invoice mr-2 text-xl" />
+						<p class="hidden md:inline">Credito Activo</p>
+					</button>
+				</li>
+				<li>
+					<button
+						class="btn btn-ghost capitalize rounded-none"
+						on:click={() => {
+							selectedComponent = optionComponent[1];
+							props = { associate: selectedAssociate };
+						}}
+						><i class="fas fa-money-bill-wave mr-2 text-xl" />
+						<p class="hidden md:inline">Pagar Cuota</p>
+					</button>
+				</li>
+				<li>
+					<button
+						class="btn btn-ghost capitalize rounded-none"
+						on:click={() => {
+							selectedComponent = optionComponent[2];
+							props = { associate: selectedAssociate };
+						}}
+						><i class="fas fa-book mr-2 text-xl" />
+						<p class="hidden md:inline">Historial</p>
+					</button>
+				</li>
+				<li>
+					<button
+						class="btn btn-ghost capitalize rounded-none"
+						on:click={() => {
+							selectedComponent = optionComponent[3];
+							props = { associate: selectedAssociate };
+						}}
+						><i class="fab fa-slideshare mr-2 text-xl" />
+						<p class="hidden md:inline">Plan de pago</p>
+					</button>
+				</li>
+			</ul>
+		</div>
 		<svelte:component this={selectedComponent.component} {...props} />
 	</ModalInfo>
 </div>

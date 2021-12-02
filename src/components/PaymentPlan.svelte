@@ -2,12 +2,15 @@
 	import * as api from '../lib/api';
 	import { onMount } from 'svelte';
 	import XLSX from 'xlsx';
+	
+
 	import { saveAs } from 'file-saver';
 	import { fade, fly } from 'svelte/transition';
 	import Loader from './Loader.svelte';
 
 	export let associate;
 
+	
 	let excel = XLSX.utils.book_new();
 
 	let page = 1;
@@ -71,7 +74,10 @@
 		};
 
 		excel.SheetNames.push('Plan de pago');
-		let head = [['Quota', 'Principal', 'interes', 'total', 'restante', 'Fecha de pago quota']];
+
+		let head = [[`${associate.associate.name} ${associate.associate.lastname}`]];
+
+		head.push(['Quota', 'Principal', 'interes', 'total', 'restante', 'Fecha de pago quota']);
 
 		for (const data of creditsTransactions) {
 			let array = [];
@@ -86,6 +92,18 @@
 
 		let ws = XLSX.utils.aoa_to_sheet(head);
 
+		ws['A1'].s = {
+			font: {
+				sz: 24,
+				bold: true,
+				color: {
+					rgb: 'FFFFAA00'
+				}
+			}
+		};
+		const merge = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
+		ws['!merges'] = merge;
+		
 		excel.Sheets['Plan de pago'] = ws;
 
 		let wbout = XLSX.write(excel, { bookType: 'xlsx', type: 'binary' });
@@ -117,7 +135,7 @@
 					<th>interes</th>
 					<th>total</th>
 					<th>Saldo</th>
-					
+
 					<th>Fecha de pago quota</th>
 				</tr>
 			</thead>

@@ -43,6 +43,9 @@
 			case '/credit':
 				current = 4;
 				break;
+			case '/check':
+				current = 5;
+				break;
 			default:
 				current = 1;
 		}
@@ -71,7 +74,11 @@
 				{
 					name: 'Empleados',
 					route: 'employees'
-				}
+				},
+				{
+					name: 'Cuentas bancarias',
+					route: 'bankaccount'
+				},
 			]
 		},
 		{
@@ -111,7 +118,7 @@
 			]
 		},
 		{
-			id: 1,
+			id: 5,
 			name: 'Cheques',
 			icon: 'fas fa-money-check',
 			route: '/check'
