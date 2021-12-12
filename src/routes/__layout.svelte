@@ -4,7 +4,7 @@
 	import * as api from '../lib/api';
 	import { user } from '../store/session';
 	import { fly } from 'svelte/transition';
-	import {access_token} from "../store/session"
+	import { access_token } from '../store/session';
 
 	import '../styles/tailwind-output.css';
 
@@ -78,7 +78,7 @@
 				{
 					name: 'Cuentas bancarias',
 					route: 'bankaccount'
-				},
+				}
 			]
 		},
 		{
@@ -122,8 +122,10 @@
 			name: 'Cheques',
 			icon: 'fas fa-money-check',
 			route: '/check'
-		},
+		}
 	];
+
+	let hambugerMenu = true;
 
 	let current = 0;
 
@@ -136,27 +138,29 @@
 {#if loading}
 	<main class="h-screen relative" in:fly={{ y: 500 }} out:fly={{ y: -500 }}>
 		<div class="flex items-start justify-between shadow-2xl ">
-			<div class="h-screen hidden md:block  relative w-80 bg-base-content">
+			<div class="h-screen hidden md:block relative bg-base-content">
 				<div class=" h-full ">
 					<div class="flex items-center justify-start pt-6 ml-4">
-						<p class="font-bold text-white  text-xl">Cooperativa Young Ocean</p>
+						<p class="font-bold text-white text-xl  {hambugerMenu ? 'hidden' : ''}">
+							Cooperativa Young Ocean
+						</p>
 					</div>
-					<nav class="mt-6">
+					<nav class="transition-all duration-400 {hambugerMenu ? 'mt-2' : 'mt-6'}">
 						<div>
 							{#each menu as menuItems, i}
 								<div
-									class="my-2 mx-1 hover:bg-primary-focus rounded-box text-white  cursor-pointer  {menuItems.id ===
+									class="my-2 mx-1 hover:bg-primary-focus rounded-box text-white cursor-pointer {menuItems.id ===
 									current
 										? 'bg-primary text-white'
-										: ''}   flex items-center transition-colors duration-200 "
+										: ''} flex items-center transition-colors duration-200 "
 								>
 									{#if menuItems.submenu}
-										<div class="dropdown dropdown-right w-full">
-											<div tabindex="0" class="pl-6 p-2 my-2">
+										<div class="dropdown dropdown-right w-full ">
+											<div tabindex="0" class="px-6 p-2 my-2 ">
 												<span class="text-left">
 													<i class={menuItems.icon} />
 												</span>
-												<span class="mx-2 text-sm font-normal">
+												<span class="mx-2 text-sm font-normal  {hambugerMenu ? 'hidden  ' : 'translate-x-0'}">
 													{menuItems.name}
 												</span>
 											</div>
@@ -182,7 +186,7 @@
 											<span class="text-left">
 												<i class={menuItems.icon} />
 											</span>
-											<span class="mx-2 text-sm font-normal">
+											<span class="mx-2 text-sm font-normal {hambugerMenu ? 'hidden' : ''}">
 												{menuItems.name}
 											</span>
 										</a>
@@ -257,9 +261,15 @@
 						</div>
 					</div>
 					<div class="relative z-20 flex flex-col justify-end h-full px-3 md:w-full">
-						<div class="relative p-1 flex items-center w-full space-x-4 justify-end">
-							<span class="w-1 h-8 rounded-lg bg-gray-200" />
+						<div class="relative p-1 flex items-center w-full space-x-4 justify-between">
+							<button
+								class="mt-4 btn btn-ghost"
+								on:click={() => {
+									hambugerMenu = !hambugerMenu;
+								}}><i class="fas fa-bars text-xl"></i></button
+							>
 							<div class="dropdown dropdown-end flex">
+								<span class="w-1 h-8 rounded-lg bg-gray-200 mt-2 mr-2" />
 								<div tabindex="0" class=" btn btn-ghost">
 									<i class="fas fa-user-shield mr-2" />{$user.username ? $user.username : ''}
 								</div>
